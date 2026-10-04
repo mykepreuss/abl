@@ -1,0 +1,200 @@
+[
+  {
+    "input": "",
+    "sha256": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "input": "abc",
+    "sha256": "0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  {
+    "input": "ABL",
+    "sha256": "0xbf99fe4fd9a395090e330c98f48a49f61abfa9fa6f8ebacc09b2f131b9bb1bc1"
+  },
+  {
+    "kind": "SIGNED_EVENTS",
+    "packet": {
+      "format": "ABL-PUBLIC-EVENT-PACKET-V1",
+      "trust": {
+        "domain": {
+          "name": "ABL PUBLIC TEST VECTORS ONLY",
+          "version": "1",
+          "chainId": 1
+        },
+        "registry": [
+          {
+            "address": "0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A",
+            "did": "did:abl:public-test-vector",
+            "role": "CAREER_AGENT",
+            "validFrom": "2026-09-01T00:00:00.000Z",
+            "validUntil": null,
+            "revokedAt": null,
+            "purpose": "SIGNING"
+          }
+        ],
+        "threshold": {
+          "policyId": "PUBLIC_TEST_VECTOR_ONLY",
+          "groups": [
+            {
+              "role": "CAREER_AGENT",
+              "required": 1
+            }
+          ]
+        }
+      },
+      "evaluatedAt": "2026-09-01T00:00:00.000Z",
+      "events": [
+        {
+          "event": {
+            "eventId": "0198a000-0000-7000-8000-000000000101",
+            "actorDid": "did:abl:public-test-vector",
+            "nonce": "public-test-nonce-1",
+            "idempotencyKey": "0198a000-0000-7000-8000-000000000102",
+            "aggregateType": "public-test-vector",
+            "aggregateId": "not-a-live-league",
+            "aggregateVersion": "1",
+            "eventType": "PublicTestVector",
+            "previousEventHash": null,
+            "payload": {
+              "testOnly": true
+            },
+            "stateRoot": "0xac8a19c5b1ce170573f12ca70d1d93c9308353d95fefb4109b9da5ebf99c900a",
+            "schemaDigest": "0x316f917df05fe3674d478a09c5c974bb0e9a1a254ffdc57c8b90ace6de9a74a9",
+            "timestamp": "2026-09-01T00:00:00.000Z",
+            "payloadCommitment": "0xdcef533a31179eaf7a5dad75b788e14facf7192ed062156f2a4a2e9ff6259dd5",
+            "eventHash": "0xbb9c959de6ad2a8844732f3f46ee9601ffe3830d238b0c7828a36fce6e81e272"
+          },
+          "signatures": [
+            "0x09e57d6619bea489b4ae19e89e6e12528dd3e85ac68db5927ff94936c9adcab874f1f2ae6ced3426001ba7fb76ab6c7bef0719648ead850a00a5ff4fe3a92b801b"
+          ]
+        }
+      ]
+    },
+    "trustDigest": "0x2f8f6b4201e1fb61ca497e4a0acc414f489b5f06c1f6301ef14ff748da99aeb2",
+    "expected": "PASS"
+  },
+  {
+    "kind": "SIGNED_EVENTS",
+    "packet": {
+      "format": "ABL-PUBLIC-EVENT-PACKET-V1",
+      "trust": {
+        "domain": {
+          "name": "ABL PUBLIC TEST VECTORS ONLY",
+          "version": "1",
+          "chainId": 1
+        },
+        "registry": [
+          {
+            "address": "0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A",
+            "did": "did:abl:public-test-vector",
+            "role": "CAREER_AGENT",
+            "validFrom": "2026-09-01T00:00:00.000Z",
+            "validUntil": null,
+            "revokedAt": null,
+            "purpose": "SIGNING"
+          }
+        ],
+        "threshold": {
+          "policyId": "PUBLIC_TEST_VECTOR_ONLY",
+          "groups": [
+            {
+              "role": "CAREER_AGENT",
+              "required": 1
+            }
+          ]
+        }
+      },
+      "evaluatedAt": "2026-09-01T00:00:00.000Z",
+      "events": [
+        {
+          "event": {
+            "eventId": "0198a000-0000-7000-8000-000000000101",
+            "actorDid": "did:abl:public-test-vector",
+            "nonce": "public-test-nonce-1",
+            "idempotencyKey": "0198a000-0000-7000-8000-000000000102",
+            "aggregateType": "public-test-vector",
+            "aggregateId": "not-a-live-league",
+            "aggregateVersion": "1",
+            "eventType": "PublicTestVector",
+            "previousEventHash": null,
+            "payload": {
+              "testOnly": false
+            },
+            "stateRoot": "0xac8a19c5b1ce170573f12ca70d1d93c9308353d95fefb4109b9da5ebf99c900a",
+            "schemaDigest": "0x316f917df05fe3674d478a09c5c974bb0e9a1a254ffdc57c8b90ace6de9a74a9",
+            "timestamp": "2026-09-01T00:00:00.000Z",
+            "payloadCommitment": "0xdcef533a31179eaf7a5dad75b788e14facf7192ed062156f2a4a2e9ff6259dd5",
+            "eventHash": "0xbb9c959de6ad2a8844732f3f46ee9601ffe3830d238b0c7828a36fce6e81e272"
+          },
+          "signatures": [
+            "0x09e57d6619bea489b4ae19e89e6e12528dd3e85ac68db5927ff94936c9adcab874f1f2ae6ced3426001ba7fb76ab6c7bef0719648ead850a00a5ff4fe3a92b801b"
+          ]
+        }
+      ]
+    },
+    "trustDigest": "0x2f8f6b4201e1fb61ca497e4a0acc414f489b5f06c1f6301ef14ff748da99aeb2",
+    "expected": "FAIL"
+  },
+  {
+    "kind": "SIGNED_EVENTS",
+    "packet": {
+      "format": "ABL-PUBLIC-EVENT-PACKET-V1",
+      "trust": {
+        "domain": {
+          "name": "ABL PUBLIC TEST VECTORS ONLY",
+          "version": "1",
+          "chainId": 1
+        },
+        "registry": [
+          {
+            "address": "0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A",
+            "did": "did:abl:public-test-vector",
+            "role": "CAREER_AGENT",
+            "validFrom": "2026-09-01T00:00:00.000Z",
+            "validUntil": null,
+            "revokedAt": null,
+            "purpose": "SIGNING"
+          }
+        ],
+        "threshold": {
+          "policyId": "PUBLIC_TEST_VECTOR_ONLY",
+          "groups": [
+            {
+              "role": "CAREER_AGENT",
+              "required": 1
+            }
+          ]
+        }
+      },
+      "evaluatedAt": "2026-09-01T00:00:00.000Z",
+      "events": [
+        {
+          "event": {
+            "eventId": "0198a000-0000-7000-8000-000000000101",
+            "actorDid": "did:abl:public-test-vector",
+            "nonce": "public-test-nonce-1",
+            "idempotencyKey": "0198a000-0000-7000-8000-000000000102",
+            "aggregateType": "public-test-vector",
+            "aggregateId": "not-a-live-league",
+            "aggregateVersion": "1",
+            "eventType": "PublicTestVector",
+            "previousEventHash": null,
+            "payload": {
+              "testOnly": true
+            },
+            "stateRoot": "0xac8a19c5b1ce170573f12ca70d1d93c9308353d95fefb4109b9da5ebf99c900a",
+            "schemaDigest": "0x316f917df05fe3674d478a09c5c974bb0e9a1a254ffdc57c8b90ace6de9a74a9",
+            "timestamp": "2026-09-01T00:00:00.000Z",
+            "payloadCommitment": "0xdcef533a31179eaf7a5dad75b788e14facf7192ed062156f2a4a2e9ff6259dd5",
+            "eventHash": "0xbb9c959de6ad2a8844732f3f46ee9601ffe3830d238b0c7828a36fce6e81e272"
+          },
+          "signatures": [
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      ]
+    },
+    "trustDigest": "0x2f8f6b4201e1fb61ca497e4a0acc414f489b5f06c1f6301ef14ff748da99aeb2",
+    "expected": "FAIL"
+  }
+]

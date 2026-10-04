@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "ABL-PUBLIC-RECOGNITION-PACKET-V1"
+    },
+    "manifest": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "manifestDigest": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "profile": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "evidence": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "format",
+    "manifest",
+    "manifestDigest",
+    "profile",
+    "evidence"
+  ],
+  "additionalProperties": false
+}

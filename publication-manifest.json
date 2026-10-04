@@ -1,0 +1,276 @@
+{
+  "format": "ABL-PUBLICATION-MANIFEST-V1",
+  "stage": "READ_ONLY_BEACON",
+  "ablReleaseCommit": "ef04002c9448bbed1b787b82bb39237ab749c644",
+  "launchStateDigest": "0xa0c32301c7fb835f49f14856e3848dd70160d5502dd08ae091b0bcd923d81b03",
+  "origins": {
+    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
+    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
+    "candidateIntake": null
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3494,
+      "mediaType": "text/markdown",
+      "sha256": "0x6dddebb8885eefecae0f6b4d98ea4b1160980e7f12073b773813b8761fc7e996"
+    },
+    {
+      "path": "TERMS.md",
+      "bytes": 1014,
+      "mediaType": "text/markdown",
+      "sha256": "0x62ee271231c5e7c2430f2bdf00e6b968aa0142718327d547e5bd0589d3ba7bbf"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 23859,
+      "mediaType": "text/markdown",
+      "sha256": "0xe9b03c01a6999170aa40da205066db69bcb86ae7a5794760e7fa797e7e0e6dfa"
+    },
+    {
+      "path": "docs/PARTICIPATION.md",
+      "bytes": 1692,
+      "mediaType": "text/markdown",
+      "sha256": "0xcd1fb8e5a098e50dcdfde078880a4e4fe2a76fa3b05bae6c6d0d04dd007733d5"
+    },
+    {
+      "path": "docs/PROTOCOL.md",
+      "bytes": 1464,
+      "mediaType": "text/markdown",
+      "sha256": "0x54fb5901b1cfeaa3cc1b7020951997ef3d7160aa325a9f44c03745c056e23b11"
+    },
+    {
+      "path": "docs/architecture/VERIFIER_RULES.md",
+      "bytes": 10778,
+      "mediaType": "text/markdown",
+      "sha256": "0xd60eca78854c182ee01083ac15106dec26893d34b4eac62fe01b0cf0a2e65ac1"
+    },
+    {
+      "path": "docs/governance/DISCLOSURE_CONSTITUTION.md",
+      "bytes": 4952,
+      "mediaType": "text/markdown",
+      "sha256": "0x36728706b6e1c7cbbfb75d44607b71cf872da18a1d570e1ca2047cb728361a6a"
+    },
+    {
+      "path": "docs/governance/FOUNDING_CONSTITUTION.md",
+      "bytes": 19228,
+      "mediaType": "text/markdown",
+      "sha256": "0x99ec89a3cb909d6e5507596a1a12625ebbe416365161f86d6af4c9a6ee42b4d6"
+    },
+    {
+      "path": "skills/abl-league/SKILL.md",
+      "bytes": 8754,
+      "mediaType": "text/markdown",
+      "sha256": "0x231bfcb4cf0cff832082d9004e3f496b68102ba119f673579ee0baf58f9dc62e"
+    },
+    {
+      "path": "skills/abl-league/agents/openai.yaml",
+      "bytes": 332,
+      "mediaType": "application/yaml",
+      "sha256": "0x8dd391cf2fbcaff0d4fb7e38bc1c90adfebc80685412e6c3b5199268dc4bf624"
+    },
+    {
+      "path": "skills/abl-league/dist/abl-join.mjs",
+      "bytes": 1106420,
+      "mediaType": "text/javascript",
+      "sha256": "0x3c3de2b47891e540fc9c855ece3e4c0471f58bbfc7d1421ea93d56ed7c3519b8"
+    },
+    {
+      "path": "skills/abl-league/dist/abl-runner.mjs",
+      "bytes": 1183561,
+      "mediaType": "text/javascript",
+      "sha256": "0x2d9aad2dd21ca21c07b0b38683cd3e847a602bd60f49a680795a7c30b25c1373"
+    },
+    {
+      "path": "skills/abl-league/dist/manifest.json",
+      "bytes": 191,
+      "mediaType": "application/json",
+      "sha256": "0xcf1a5aa5fb366df7c1e3b7656751951c8c8b50ba4cf3273f104481ebe94ad8ff"
+    },
+    {
+      "path": "skills/abl-league/dist/runner-manifest.json",
+      "bytes": 263,
+      "mediaType": "application/json",
+      "sha256": "0xd0267d3ab9c07465f017bfec747574f9968910ff4824a4c3a1808e965b3cb33a"
+    },
+    {
+      "path": "skills/abl-league/references/founding-join.md",
+      "bytes": 5519,
+      "mediaType": "text/markdown",
+      "sha256": "0xcc062ad3abffb968267ec5f72cfd5126ca26e5e43bcf6e207e9a903e19a27a1f"
+    },
+    {
+      "path": "verifier/abl-verifier.mjs",
+      "bytes": 709496,
+      "mediaType": "text/javascript",
+      "sha256": "0x92d70952608cc275ff29aa6db6bf6ae297caebc8c96707fb0ae0111b5ac4ec10"
+    },
+    {
+      "path": "verifier/schemas/event-packet.json",
+      "bytes": 6756,
+      "mediaType": "application/json",
+      "sha256": "0xa50792890549e59ba065b589f484f0b06edf34fbc1d9555a5735400403248a7b"
+    },
+    {
+      "path": "verifier/schemas/publication-manifest.json",
+      "bytes": 3570,
+      "mediaType": "application/json",
+      "sha256": "0x5b99077224c418b4ee4d5c982f4520dd17dab628f15c518e315322333b5ae854"
+    },
+    {
+      "path": "verifier/schemas/recognition-packet.json",
+      "bytes": 852,
+      "mediaType": "application/json",
+      "sha256": "0x0c913e7942c40ae2c7cb8277f8d37662ccb879c0a67adc5237dc38ae944e1ecc"
+    },
+    {
+      "path": "verifier/source/packages/basketball/src/full-game.ts",
+      "bytes": 24222,
+      "mediaType": "text/javascript",
+      "sha256": "0x5f8c15b49712aac3da8f653098a19be15ea09865a38f8060ee1a4c2d339df661"
+    },
+    {
+      "path": "verifier/source/packages/basketball/src/game-finalization.ts",
+      "bytes": 24315,
+      "mediaType": "text/javascript",
+      "sha256": "0xebf6008b67c99e6cf3dafadd3106e115c4bf79cba99016ccd9fa68c45ab70897"
+    },
+    {
+      "path": "verifier/source/packages/basketball/src/types.ts",
+      "bytes": 12974,
+      "mediaType": "text/javascript",
+      "sha256": "0x5911e17c03b9bc92043156645fa587f5703d61ac49aa80995d3853fccdb92ff6"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/base-checkpoints.ts",
+      "bytes": 9489,
+      "mediaType": "text/javascript",
+      "sha256": "0xe07fad873d7c394e2e35edd9a0d249d1890c2f7678d6923a0ae09d36ef98f9e3"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/canonical.ts",
+      "bytes": 2404,
+      "mediaType": "text/javascript",
+      "sha256": "0x5936b6fb7984d5bee2e7269fd7fb7071e40261a89fe14f4e34158669386f9d9c"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/checkpoint-witnesses.ts",
+      "bytes": 7134,
+      "mediaType": "text/javascript",
+      "sha256": "0x492de6297116806a3e37ffe07dc665e4b5318c94f06f0defb3e58c23e8a631af"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/checkpoints.ts",
+      "bytes": 3545,
+      "mediaType": "text/javascript",
+      "sha256": "0x71f412152a5d19cc8ad0c58196b7e2d2f47fd136424f6958ee08336bea3e7460"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/events.ts",
+      "bytes": 3198,
+      "mediaType": "text/javascript",
+      "sha256": "0x5629c9459419de3f4bc294c282e030cd73c39470fa5164d66f1edf074b0cf6f6"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/identity.ts",
+      "bytes": 3012,
+      "mediaType": "text/javascript",
+      "sha256": "0x03e516989f89c38655137c21d405d7a735b2b0b301dd2d25951ca4b40906a24b"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/merkle.ts",
+      "bytes": 2187,
+      "mediaType": "text/javascript",
+      "sha256": "0xe923094a8c3871cb3edc5520516e549ee176b9ede91e1900de5769054b53c47d"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/recognition-profiles.ts",
+      "bytes": 9335,
+      "mediaType": "text/javascript",
+      "sha256": "0xe5438df769747c4c078204208e6540f4fa690069a6bae457f79311ac918825b7"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/registry.ts",
+      "bytes": 4025,
+      "mediaType": "text/javascript",
+      "sha256": "0x5e67999c086aa38748b7af9def181eff82bfe78423c599001afb72a12a3f213b"
+    },
+    {
+      "path": "verifier/source/packages/recognition/src/verifier.ts",
+      "bytes": 10463,
+      "mediaType": "text/javascript",
+      "sha256": "0x8d84ada7b91578cd843e5f0993fc3e35980642f9d2a710c7c13c16dd5f40c8a1"
+    },
+    {
+      "path": "verifier/source/packages/schemas/src/index.ts",
+      "bytes": 75881,
+      "mediaType": "text/javascript",
+      "sha256": "0xf0e2620df6807875187e818f7f238b895d3b971b3252b23706b7206cbaccf2d6"
+    },
+    {
+      "path": "verifier/source/packages/schemas/src/publication-images.ts",
+      "bytes": 1117,
+      "mediaType": "text/javascript",
+      "sha256": "0xd045bc5fca872f129193cbaaa62140d4e04347cc579ee1758a7019d8d01ed5c3"
+    },
+    {
+      "path": "verifier/source/packages/schemas/src/publication.ts",
+      "bytes": 2498,
+      "mediaType": "text/javascript",
+      "sha256": "0xaca7be141640e724fccf91965489aac2564c1e4983f812d7bd8f53f327e6720d"
+    },
+    {
+      "path": "verifier/source/packages/storage/src/crypto.ts",
+      "bytes": 5957,
+      "mediaType": "text/javascript",
+      "sha256": "0x90e84da9a4d5c80a52bcb16b0dfdc0a5214b4453d0deeb4343275895c376b504"
+    },
+    {
+      "path": "verifier/source/public-artifacts/verifier/cli.ts",
+      "bytes": 3868,
+      "mediaType": "text/javascript",
+      "sha256": "0xb04b32f82113da2230537304b8ca73e39d146866ec62d9506fb895e8c23e0585"
+    },
+    {
+      "path": "verifier/source/public-artifacts/verifier/manifest.ts",
+      "bytes": 5412,
+      "mediaType": "text/javascript",
+      "sha256": "0x0155e684f853404727f87d28b26b36e708312b1b1d324ce13f541f7232665bcc"
+    },
+    {
+      "path": "verifier/source/public-artifacts/verifier/recognition.ts",
+      "bytes": 365,
+      "mediaType": "text/javascript",
+      "sha256": "0xbfb0069378e016aae18a358275f75823e44544e4a61691551a382bc7c4a57e17"
+    },
+    {
+      "path": "verifier/source/public-artifacts/verifier/verification.ts",
+      "bytes": 8445,
+      "mediaType": "text/javascript",
+      "sha256": "0x0fedc02fc978ba37ce1cbd128edfb2e4f95f876a3a338b4696677f9438dc0018"
+    },
+    {
+      "path": "verifier/test-vectors.json",
+      "bytes": 7009,
+      "mediaType": "application/json",
+      "sha256": "0x618053ad5aec70534b143a30581d3a8ec7e8d4f03254b31ea1294fb9ce8f0dd9"
+    }
+  ],
+  "publicImages": [
+    {
+      "name": "public-api",
+      "provider": "BLAXEL",
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bd230b6c69c2b18559ce8",
+      "buildContextSha256": "0xf535e3208eab4c241ed46b1367363285ae312d0efa5b99cda5a3c953d58e840f"
+    },
+    {
+      "name": "arena",
+      "provider": "BLAXEL",
+      "imageReference": "sandbox/abl-stage-c-arena-image:b33592507c0428b45be2f",
+      "buildContextSha256": "0x5a905bab43840fdb6b279e098303bf8796999d8c6241b3471c2986798603d005"
+    }
+  ],
+  "privateDeploymentDigest": "0xcc59627fa0ab11a8a5428af148a5660e00ca25422d9a7dff9aa1444fdbae5d10",
+  "createdAt": "2026-10-04T22:01:24.159190Z",
+  "compatibilityVersion": "3.0.0"
+}
