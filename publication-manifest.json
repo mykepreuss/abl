@@ -2,7 +2,7 @@
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
   "ablReleaseCommit": "d9341562601661580a35f77d4f947ea9f9eee00d",
-  "launchStateDigest": "0x80aea48f0db823aefab8025bc61920356a80e8d56806882b231423bb838c7c67",
+  "launchStateDigest": "0x6b39bfefbb69995795216886487e6d499975ccf8ccc8a14a92ebebc949f833fd",
   "origins": {
     "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
     "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
@@ -288,7 +288,7 @@
       "buildContextSha256": "0x3e303bcda1c4702f5da806c81761bcb5fa1e312214165a8ca31436d2e6e663d5"
     }
   ],
-  "privateDeploymentDigest": "0x30aebe831f7a2e0cafcee5e275e946ed28a77dc36d38bbe97a1c33e8302cca44",
-  "createdAt": "2026-10-05T00:08:31.129Z",
+  "privateDeploymentDigest": "0xd34d55d3a32f4aa84010f46b3523ca43301b3f30b65c802d125fba5b2195a774",
+  "createdAt": "2026-10-05T00:11:28.568Z",
   "compatibilityVersion": "3.0.0"
 }
