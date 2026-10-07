@@ -72,7 +72,8 @@ export const BasketballStateSchema = z
   .strictObject({
     gameId: z.string().min(1).max(100),
     possessionId: z.string().min(1).max(100),
-    quarter: z.number().int().positive().max(20),
+    // Overtime is unlimited while teams keep scoring (see FullGameEngine).
+    quarter: z.number().int().positive().max(1_000),
     gameClockMs: z.number().int().nonnegative().max(720_000),
     shotClockMs: z.number().int().nonnegative().max(24_000),
     score: z.strictObject({

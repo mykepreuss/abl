@@ -137,6 +137,8 @@ export class FullGameEngine {
   readonly #snapshots: FullGameSnapshot[] | null;
   #state: FullGameState;
   #pendingChallenge: { team: Team; targetEventSequence: number } | null = null;
+  /** Score when the current period began; not part of the state root. */
+  #periodStartScore: Record<Lowercase<Team>, number> = { home: 0, away: 0 };
 
   public constructor(
     input: FullGameInput,
@@ -200,6 +202,7 @@ export class FullGameEngine {
     const eventCountBefore = this.#events.length;
     const stateBefore = structuredClone(this.#state);
     const pendingChallengeBefore = structuredClone(this.#pendingChallenge);
+    const periodStartScoreBefore = { ...this.#periodStartScore };
     try {
       this.#resolve(command);
       this.#commands.push(structuredClone(command));
@@ -216,6 +219,7 @@ export class FullGameEngine {
       this.#events.splice(eventCountBefore);
       this.#snapshots?.splice(eventCountBefore);
       this.#pendingChallenge = pendingChallengeBefore;
+      this.#periodStartScore = periodStartScoreBefore;
       throw error;
     }
   }
@@ -555,11 +559,21 @@ export class FullGameEngine {
             REGULATION_PERIOD_MS,
           );
         } else if (this.#state.score.home === this.#state.score.away) {
-          this.#startPeriod(
-            this.#state.period + 1,
-            "OVERTIME",
-            OVERTIME_PERIOD_MS,
-          );
+          // Overtime is unlimited while someone keeps scoring. An overtime
+          // that ends tied with no score in it ends the game as a
+          // no-contest, so a game nobody can win still ends.
+          if (
+            this.#state.periodKind === "OVERTIME" &&
+            this.#state.score.home === this.#periodStartScore.home &&
+            this.#state.score.away === this.#periodStartScore.away
+          )
+            this.#finalizeNoContest();
+          else
+            this.#startPeriod(
+              this.#state.period + 1,
+              "OVERTIME",
+              OVERTIME_PERIOD_MS,
+            );
         } else {
           this.#finalize();
         }
@@ -575,6 +589,7 @@ export class FullGameEngine {
   ): void {
     this.#state.period = period;
     this.#state.periodKind = kind;
+    this.#periodStartScore = { ...this.#state.score };
     this.#state.gameClockMs = duration;
     this.#state.shotClockMs = SHOT_CLOCK_MS;
     this.#state.teamFouls = { home: 0, away: 0 };
@@ -594,6 +609,16 @@ export class FullGameEngine {
       this.#state.score.home > this.#state.score.away ? "HOME" : "AWAY";
     this.#state.phase = "FINAL";
     this.#record("GAME_FINAL", { winner: this.#state.winner, derived: true });
+  }
+
+  #finalizeNoContest(): void {
+    this.#state.winner = null;
+    this.#state.phase = "FINAL";
+    this.#record("GAME_FINAL", {
+      winner: null,
+      derived: true,
+      outcome: "NO_CONTEST",
+    });
   }
 
   #changePossession(team: Team): void {

@@ -216,9 +216,29 @@ export const AgentPlayedGameEvidenceSchema = z.strictObject({
   evidenceCommitment: Sha256Schema,
 });
 
+/** Ten player and two coach decisions per window played (one to four). */
+const windowDecisions = (perWindow: number) =>
+  z
+    .array(Sha256Schema)
+    .min(perWindow)
+    .max(perWindow * 4)
+    .refine(
+      (decisions) => decisions.length % perWindow === 0,
+      "Decisions come in whole windows",
+    );
+const windowAuthorities = (perWindow: number) =>
+  z
+    .array(DidSchema)
+    .min(perWindow)
+    .max(perWindow * 4)
+    .refine(
+      (dids) => dids.length % perWindow === 0,
+      "Decisions come in whole windows",
+    );
+
 const AgentPlayedPossessionAuthorityDidsSchema = z.strictObject({
-  players: z.array(DidSchema).length(20),
-  coaches: z.array(DidSchema).length(4),
+  players: windowAuthorities(10),
+  coaches: windowAuthorities(2),
   referees: z.array(DidSchema).length(3),
   replayOfficials: z.array(DidSchema).length(2),
 });
@@ -227,22 +247,60 @@ export type AgentPlayedPossessionAuthorityDids = z.infer<
   typeof AgentPlayedPossessionAuthorityDidsSchema
 >;
 
-export const AgentPlayedPossessionEvidenceSchema = z.strictObject({
-  possessionId: z.string().min(1).max(100),
-  playerDecisionHashes: z.array(Sha256Schema).length(20),
-  coachDecisionHashes: z.array(Sha256Schema).length(4),
-  refereeDecisionHashes: z.array(Sha256Schema).length(3),
-  replayDecisionHashes: z.array(Sha256Schema).length(2),
-  authorityDids: AgentPlayedPossessionAuthorityDidsSchema.optional(),
-  eventMerkleRoot: Sha256Schema,
-  finalStateRoot: Sha256Schema,
-});
+export const AgentPlayedPossessionEvidenceSchema = z
+  .strictObject({
+    possessionId: z.string().min(1).max(100),
+    playerDecisionHashes: windowDecisions(10),
+    coachDecisionHashes: windowDecisions(2),
+    refereeDecisionHashes: z.array(Sha256Schema).length(3),
+    replayDecisionHashes: z.array(Sha256Schema).length(2),
+    authorityDids: AgentPlayedPossessionAuthorityDidsSchema.optional(),
+    eventMerkleRoot: Sha256Schema,
+    finalStateRoot: Sha256Schema,
+  })
+  .refine(
+    (evidence) =>
+      evidence.coachDecisionHashes.length * 5 ===
+        evidence.playerDecisionHashes.length &&
+      (evidence.authorityDids === undefined ||
+        (evidence.authorityDids.players.length ===
+          evidence.playerDecisionHashes.length &&
+          evidence.authorityDids.coaches.length ===
+            evidence.coachDecisionHashes.length)),
+    "Possession decisions must cover the same windows",
+  );
+
+/**
+ * A game's total decisions are consistent with its possessions: each played
+ * one to four windows of ten player and two coach decisions, and had three
+ * referee and two replay decisions. Exact per-possession counts are bound by
+ * the possession evidence itself.
+ */
+export function agentDecisionCountsAreConsistent(
+  counts: {
+    players: number;
+    coaches: number;
+    referees: number;
+    replayOfficials: number;
+  },
+  possessionCount: number,
+): boolean {
+  return (
+    counts.players % 10 === 0 &&
+    counts.players >= possessionCount * 10 &&
+    counts.players <= possessionCount * 40 &&
+    counts.coaches * 5 === counts.players &&
+    counts.referees === possessionCount * 3 &&
+    counts.replayOfficials === possessionCount * 2
+  );
+}
 
 export const FinalizedGameProofSchema = z.strictObject({
   finalStateRoot: Sha256Schema,
   eventMerkleRoot: Sha256Schema,
   finalEventHash: Sha256Schema,
-  winner: TeamSchema,
+  /** Null for a no-contest: an overtime ended tied with no score in it. */
+  winner: TeamSchema.nullable(),
 });
 
 export const FinalizedGameScheduleEvidenceSchema = z.strictObject({
@@ -613,14 +671,10 @@ export function replayFinalizedGamePayload(input: unknown): {
         ) !== payload.competition.evidenceCommitment ||
         Date.parse(payload.competition.scheduledAt) >
           Date.parse(payload.finalizedAt))) ||
-    payload.agentEvidence.decisionCounts.players !==
-      payload.agentEvidence.possessionCount * 20 ||
-    payload.agentEvidence.decisionCounts.coaches !==
-      payload.agentEvidence.possessionCount * 4 ||
-    payload.agentEvidence.decisionCounts.referees !==
-      payload.agentEvidence.possessionCount * 3 ||
-    payload.agentEvidence.decisionCounts.replayOfficials !==
-      payload.agentEvidence.possessionCount * 2 ||
+    !agentDecisionCountsAreConsistent(
+      payload.agentEvidence.decisionCounts,
+      payload.agentEvidence.possessionCount,
+    ) ||
     sha256Commitment(evidenceBody(payload.agentEvidence)) !==
       payload.agentEvidence.evidenceCommitment ||
     sha256Commitment({
