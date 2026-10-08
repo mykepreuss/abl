@@ -1,7 +1,7 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "2fd51b81a07f566a46850f8245f2dd577cd84b66",
+  "ablReleaseCommit": "d56dcda6ee365f8282eed9473a11a04a56012cad",
   "launchStateDigest": "0x6b39bfefbb69995795216886487e6d499975ccf8ccc8a14a92ebebc949f833fd",
   "origins": {
     "publicApi": "https://f0f283bd56f3a3ef1054677b70ada235.us-was-1.preview.bl.run",
@@ -101,9 +101,9 @@
     },
     {
       "path": "verifier/abl-verifier.mjs",
-      "bytes": 714514,
+      "bytes": 714602,
       "mediaType": "text/javascript",
-      "sha256": "0xbf34dd0c57649b3ae5a0a434cfde610fa47ef28f54fa301e9ad58ccaffee1eeb"
+      "sha256": "0x0d86e6a5fc66d0e0d45e35a2078c4656461061ec4018ae0e848582076a62750c"
     },
     {
       "path": "verifier/schemas/event-packet.json",
@@ -137,9 +137,9 @@
     },
     {
       "path": "verifier/source/packages/basketball/src/types.ts",
-      "bytes": 21371,
+      "bytes": 22471,
       "mediaType": "text/javascript",
-      "sha256": "0xc57f219972fb8060bb0b12cdf7087528063da17f0d67664ba0f053a855edcb44"
+      "sha256": "0xcbaf1d158373e04063527668a89c30db044c516aaf5594f4fda4ea17d05ace82"
     },
     {
       "path": "verifier/source/packages/recognition/src/base-checkpoints.ts",
@@ -260,14 +260,14 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:bb9e53d03c6a280ab5137",
-      "buildContextSha256": "0x2adb077e681d467fad327f2278db58a96beace1c08cbf3b1240dd8b18ebcc84f"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bb7c7b99ff07d82d78d59",
+      "buildContextSha256": "0x91b1e9952bbfdd280421f352fcd9f30d673fb75de5b7578967ea894a2df3cd43"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b6bc84122b93be39df546",
-      "buildContextSha256": "0x3e14eca071de11de9966d006d23d4bd39e64848f62cff92fa6d15dc26fa49846"
+      "imageReference": "sandbox/abl-stage-c-arena-image:bd8dd1de997db99f2d5c2",
+      "buildContextSha256": "0x868a7670a04d826b8a9c5bc189a338aa5109f14010eb36f57e96dbe8f8783604"
     },
     {
       "name": "candidate-edge",
@@ -289,6 +289,6 @@
     }
   ],
   "privateDeploymentDigest": "0x3ece3a38efb6ba5f1777582c8b50573914bc66bb7c721e909172267fa1dc7a2a",
-  "createdAt": "2026-10-08T18:47:52.000Z",
+  "createdAt": "2026-10-08T21:44:34.000Z",
   "compatibilityVersion": "3.0.0"
 }

@@ -58,6 +58,21 @@ export const PlayerStateSchema = z.strictObject({
 export const RULES_V2 = "ABL-RULES-V2" as const;
 /** The calibrated teamwork rules with conditional officiating; see rules-v3.ts. */
 export const RULES_V3 = "ABL-RULES-V3" as const;
+/**
+ * V3 plus auto-play: a decision a career signed as a fallback (its
+ * participant missed the window) is played by the engine's auto-play
+ * instead of a literal HOLD; see auto-play.ts.
+ */
+export const RULES_V4 = "ABL-RULES-V4" as const;
+
+/** The rules that consult officials only when something happens (V3, V4). */
+export type ConditionalOfficiatingRules = typeof RULES_V3 | typeof RULES_V4;
+
+export function isConditionalOfficiating(
+  version: string | undefined,
+): version is ConditionalOfficiatingRules {
+  return version === RULES_V3 || version === RULES_V4;
+}
 
 /**
  * Fouls standing before a V3 possession, copied from the full game: the
@@ -76,14 +91,14 @@ export interface PossessionFouls {
  * a V2 state has exactly the V2 fields, so its roots are unchanged too.
  */
 export interface PossessionRules {
-  version: typeof RULES_V2 | typeof RULES_V3;
+  version: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
   catchWindow: number | null;
-  /** V3 only: fouls standing when the possession opened. */
+  /** V3 and V4 only: fouls standing when the possession opened. */
   fouls?: PossessionFouls;
-  /** V3 only: replay reviews the game had already held. */
+  /** V3 and V4 only: replay reviews the game had already held. */
   reviewsUsed?: number;
 }
 
@@ -93,8 +108,7 @@ const PossessionRulesV2Schema = z.strictObject({
   catchWindow: z.number().int().nonnegative().max(4).nullable(),
 });
 
-const PossessionRulesV3Schema = z.strictObject({
-  version: z.literal(RULES_V3),
+const conditionalOfficiatingFields = {
   windows: z.number().int().min(2).max(4),
   catchWindow: z.number().int().nonnegative().max(4).nullable(),
   fouls: z.strictObject({
@@ -108,11 +122,23 @@ const PossessionRulesV3Schema = z.strictObject({
     ),
   }),
   reviewsUsed: z.number().int().nonnegative().max(1_000),
+} as const;
+
+const PossessionRulesV3Schema = z.strictObject({
+  version: z.literal(RULES_V3),
+  ...conditionalOfficiatingFields,
+});
+
+/** V4 keeps exactly V3's possession state; only its version differs. */
+const PossessionRulesV4Schema = z.strictObject({
+  version: z.literal(RULES_V4),
+  ...conditionalOfficiatingFields,
 });
 
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
+  PossessionRulesV4Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -341,9 +367,9 @@ const PlayerSituationViewSchema = z.strictObject({
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
-  /** Teamwork rules (V2, V3) only: the situation first, then the original fields. */
+  /** Teamwork rules (V2-V4) only: the situation first, then the original fields. */
   format?: "ABL-PLAYER-OBSERVATION-V2";
-  rules?: typeof RULES_V2 | typeof RULES_V3;
+  rules?: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4;
   situation?: PlayerSituationView;
   legalActions?: LegalActionView[];
   /** Actions that would be ignored or have no effect, and why. */
@@ -371,7 +397,7 @@ export interface PlayerObservation {
 
 export const PlayerObservationSchema = z.strictObject({
   format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
-  rules: z.enum([RULES_V2, RULES_V3]).exactOptional(),
+  rules: z.enum([RULES_V2, RULES_V3, RULES_V4]).exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
   legalActions: z.array(LegalActionViewSchema).min(1).max(16).exactOptional(),
   notUseful: z.array(z.string().min(1).max(400)).max(8).exactOptional(),
@@ -592,7 +618,10 @@ export interface ResolutionEvent {
     | "FOUL"
     | "FREE_THROW"
     | "VIOLATION"
-    | "REPLAY_REVIEW";
+    | "REPLAY_REVIEW"
+    // V4 only: decisions in a window that the engine auto-played because
+    // their careers signed fallbacks (no valid decision in time).
+    | "AUTO_PLAY";
   data: Record<string, string | number | boolean | null>;
   stateRoot: `0x${string}`;
   eventHash: `0x${string}`;
