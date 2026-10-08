@@ -99,6 +99,7 @@ export const GameCommandSchema = z.discriminatedUnion("type", [
       z.literal(2),
       z.literal(3),
     ]),
+    noSubstitute: z.literal(true).exactOptional(),
   }),
   TeamCommandSchema.extend({
     type: z.literal("VIOLATION"),
@@ -268,6 +269,64 @@ export const AgentPlayedPossessionEvidenceSchema = z
           evidence.authorityDids.coaches.length ===
             evidence.coachDecisionHashes.length)),
     "Possession decisions must cover the same windows",
+  );
+
+const officialsInThrees = <T extends z.ZodType<string>>(item: T) =>
+  z
+    .array(item)
+    .max(9)
+    .refine(
+      (decisions) => decisions.length % 3 === 0,
+      "Referees decide three at a time",
+    );
+const replayInTwos = <T extends z.ZodType<string>>(item: T) =>
+  z
+    .array(item)
+    .max(2)
+    .refine(
+      (decisions) => decisions.length === 0 || decisions.length === 2,
+      "Replay officials decide two at a time",
+    );
+
+/**
+ * Possession evidence under the V3 rules (owner exhibitions only), where
+ * officials decide only when something happened: referee decisions come in
+ * threes, none when nothing needed a ruling and at most three rulings; replay
+ * decisions are both or neither. Finalized games keep the exact evidence
+ * above.
+ */
+export const ConditionalOfficialsPossessionEvidenceSchema = z
+  .strictObject({
+    possessionId: z.string().min(1).max(100),
+    playerDecisionHashes: windowDecisions(10),
+    coachDecisionHashes: windowDecisions(2),
+    refereeDecisionHashes: officialsInThrees(Sha256Schema),
+    replayDecisionHashes: replayInTwos(Sha256Schema),
+    authorityDids: z
+      .strictObject({
+        players: windowAuthorities(10),
+        coaches: windowAuthorities(2),
+        referees: officialsInThrees(DidSchema),
+        replayOfficials: replayInTwos(DidSchema),
+      })
+      .optional(),
+    eventMerkleRoot: Sha256Schema,
+    finalStateRoot: Sha256Schema,
+  })
+  .refine(
+    (evidence) =>
+      evidence.coachDecisionHashes.length * 5 ===
+        evidence.playerDecisionHashes.length &&
+      (evidence.authorityDids === undefined ||
+        (evidence.authorityDids.players.length ===
+          evidence.playerDecisionHashes.length &&
+          evidence.authorityDids.coaches.length ===
+            evidence.coachDecisionHashes.length &&
+          evidence.authorityDids.referees.length ===
+            evidence.refereeDecisionHashes.length &&
+          evidence.authorityDids.replayOfficials.length ===
+            evidence.replayDecisionHashes.length)),
+    "Possession decisions must cover the same windows and rulings",
   );
 
 /**

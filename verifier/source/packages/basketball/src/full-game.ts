@@ -51,6 +51,12 @@ export type GameCommand =
       playerId: string;
       kind: FoulKind;
       freeThrows: 0 | 1 | 2 | 3;
+      /**
+       * A personal foul that fouls the player out (sixth or later) when their
+       * team has no eligible substitute: they stay in the game (V3
+       * exhibitions have no bench). Only valid in exactly that case.
+       */
+      noSubstitute?: true;
     }
   | {
       type: "VIOLATION";
@@ -308,6 +314,19 @@ export class FullGameEngine {
         }
         this.#assertActive(command.byTeam, command.playerId);
         const count = (this.#state.playerFouls[command.playerId] ?? 0) + 1;
+        if (
+          command.noSubstitute === true &&
+          (count < 6 ||
+            command.kind === "FLAGRANT_2" ||
+            this.#state.bench[side(command.byTeam)].some(
+              (id) =>
+                !this.#state.ejectedPlayerIds.includes(id) &&
+                !this.#state.injuredPlayerIds.includes(id),
+            ))
+        )
+          throw new Error(
+            "A player stays in after fouling out only without a substitute",
+          );
         this.#state.playerFouls[command.playerId] = count;
         const offended = other(command.byTeam);
         if (command.kind !== "TECHNICAL") {
@@ -338,7 +357,10 @@ export class FullGameEngine {
           bonus: this.#state.bonus[side(offended)],
           awardedFreeThrows,
         });
-        if (count >= 6 || command.kind === "FLAGRANT_2") {
+        if (
+          (count >= 6 && command.noSubstitute !== true) ||
+          command.kind === "FLAGRANT_2"
+        ) {
           if (!this.#state.ejectedPlayerIds.includes(command.playerId))
             this.#state.ejectedPlayerIds.push(command.playerId);
           this.#state.active[side(command.byTeam)] = this.#state.active[

@@ -56,25 +56,64 @@ export const PlayerStateSchema = z.strictObject({
 
 /** The teamwork rules; see rules-v2.ts. */
 export const RULES_V2 = "ABL-RULES-V2" as const;
+/** The calibrated teamwork rules with conditional officiating; see rules-v3.ts. */
+export const RULES_V3 = "ABL-RULES-V3" as const;
 
 /**
- * Play state that only the teamwork rules (V2) keep. A possession whose state
- * has no `rules` resolves under the original rules, so the roots, events and
- * replays of possessions recorded before V2 are unchanged.
+ * Fouls standing before a V3 possession, copied from the full game: the
+ * period's team fouls (they decide the bonus) and the personal fouls of the
+ * ten players on the floor.
+ */
+export interface PossessionFouls {
+  team: { home: number; away: number };
+  players: Record<string, number>;
+}
+
+/**
+ * Play state that only the teamwork rules (V2 and V3) keep. A possession
+ * whose state has no `rules` resolves under the original rules, so the
+ * roots, events and replays of possessions recorded before V2 are unchanged;
+ * a V2 state has exactly the V2 fields, so its roots are unchanged too.
  */
 export interface PossessionRules {
-  version: typeof RULES_V2;
+  version: typeof RULES_V2 | typeof RULES_V3;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
   catchWindow: number | null;
+  /** V3 only: fouls standing when the possession opened. */
+  fouls?: PossessionFouls;
+  /** V3 only: replay reviews the game had already held. */
+  reviewsUsed?: number;
 }
 
-export const PossessionRulesSchema = z.strictObject({
+const PossessionRulesV2Schema = z.strictObject({
   version: z.literal(RULES_V2),
   windows: z.number().int().min(2).max(4),
   catchWindow: z.number().int().nonnegative().max(4).nullable(),
-}) satisfies z.ZodType<PossessionRules>;
+});
+
+const PossessionRulesV3Schema = z.strictObject({
+  version: z.literal(RULES_V3),
+  windows: z.number().int().min(2).max(4),
+  catchWindow: z.number().int().nonnegative().max(4).nullable(),
+  fouls: z.strictObject({
+    team: z.strictObject({
+      home: z.number().int().nonnegative().max(1_000),
+      away: z.number().int().nonnegative().max(1_000),
+    }),
+    players: z.record(
+      z.string().min(1).max(100),
+      z.number().int().nonnegative().max(100),
+    ),
+  }),
+  reviewsUsed: z.number().int().nonnegative().max(1_000),
+});
+
+export const PossessionRulesSchema = z.discriminatedUnion("version", [
+  PossessionRulesV2Schema,
+  PossessionRulesV3Schema,
+]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
   gameId: string;
@@ -302,9 +341,9 @@ const PlayerSituationViewSchema = z.strictObject({
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
-  /** Teamwork rules (V2) only: the situation first, then the original fields. */
+  /** Teamwork rules (V2, V3) only: the situation first, then the original fields. */
   format?: "ABL-PLAYER-OBSERVATION-V2";
-  rules?: typeof RULES_V2;
+  rules?: typeof RULES_V2 | typeof RULES_V3;
   situation?: PlayerSituationView;
   legalActions?: LegalActionView[];
   /** Actions that would be ignored or have no effect, and why. */
@@ -332,7 +371,7 @@ export interface PlayerObservation {
 
 export const PlayerObservationSchema = z.strictObject({
   format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
-  rules: z.literal(RULES_V2).exactOptional(),
+  rules: z.enum([RULES_V2, RULES_V3]).exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
   legalActions: z.array(LegalActionViewSchema).min(1).max(16).exactOptional(),
   notUseful: z.array(z.string().min(1).max(400)).max(8).exactOptional(),
@@ -546,7 +585,14 @@ export interface ResolutionEvent {
     | "REBOUND"
     | "OUT_OF_BOUNDS"
     | "OFFICIAL_RULING"
-    | "POSSESSION_FINAL";
+    | "POSSESSION_FINAL"
+    // V3 only: a defender takes the ball (no whistle), a called foul, a
+    // free throw, a shot-clock violation, and a replay review.
+    | "STEAL"
+    | "FOUL"
+    | "FREE_THROW"
+    | "VIOLATION"
+    | "REPLAY_REVIEW";
   data: Record<string, string | number | boolean | null>;
   stateRoot: `0x${string}`;
   eventHash: `0x${string}`;
