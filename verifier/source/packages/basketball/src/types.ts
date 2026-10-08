@@ -54,6 +54,28 @@ export const PlayerStateSchema = z.strictObject({
   stamina: z.number().int().min(0).max(100),
 }) satisfies z.ZodType<PlayerState>;
 
+/** The teamwork rules; see rules-v2.ts. */
+export const RULES_V2 = "ABL-RULES-V2" as const;
+
+/**
+ * Play state that only the teamwork rules (V2) keep. A possession whose state
+ * has no `rules` resolves under the original rules, so the roots, events and
+ * replays of possessions recorded before V2 are unchanged.
+ */
+export interface PossessionRules {
+  version: typeof RULES_V2;
+  /** Decision windows scheduled for this possession. */
+  windows: number;
+  /** Window in which the current ball handler caught a pass, else null. */
+  catchWindow: number | null;
+}
+
+export const PossessionRulesSchema = z.strictObject({
+  version: z.literal(RULES_V2),
+  windows: z.number().int().min(2).max(4),
+  catchWindow: z.number().int().nonnegative().max(4).nullable(),
+}) satisfies z.ZodType<PossessionRules>;
+
 export interface BasketballState {
   gameId: string;
   possessionId: string;
@@ -66,6 +88,8 @@ export interface BasketballState {
   players: PlayerState[];
   window: number;
   phase: "LIVE" | "DEAD" | "FINAL";
+  /** Present when the possession is played under the teamwork rules (V2). */
+  rules?: PossessionRules;
 }
 
 export const BasketballStateSchema = z
@@ -89,6 +113,7 @@ export const BasketballStateSchema = z
     players: z.array(PlayerStateSchema).length(10),
     window: z.number().int().nonnegative().max(1_000),
     phase: z.enum(["LIVE", "DEAD", "FINAL"]),
+    rules: PossessionRulesSchema.exactOptional(),
   })
   .refine((state) => {
     const playerIds = state.players.map(({ playerId }) => playerId);
@@ -149,7 +174,147 @@ export const ActionIntentSchema = z.discriminatedUnion("action", [
 ]);
 export type ActionIntent = z.infer<typeof ActionIntentSchema>;
 
+/** A decision exactly as a participant returns it (the league adds IDs). */
+export type ParticipantPlayerDecision =
+  | { action: "MOVE"; vector: { dx: number; dy: number } }
+  | {
+      action: "PASS";
+      targetPlayerId: string;
+      lead: { dx: number; dy: number };
+    }
+  | { action: "SHOOT"; shot: "LAYUP" | "JUMPER" | "THREE" }
+  | { action: "SCREEN" }
+  | { action: "HOLD" };
+
+const ParticipantPlayerDecisionSchema = z.discriminatedUnion("action", [
+  z.strictObject({ action: z.literal("MOVE"), vector: VectorSchema }),
+  z.strictObject({
+    action: z.literal("PASS"),
+    targetPlayerId: z.string().min(1).max(100),
+    lead: VectorSchema,
+  }),
+  z.strictObject({
+    action: z.literal("SHOOT"),
+    shot: z.enum(["LAYUP", "JUMPER", "THREE"]),
+  }),
+  z.strictObject({ action: z.literal("SCREEN") }),
+  z.strictObject({ action: z.literal("HOLD") }),
+]) satisfies z.ZodType<ParticipantPlayerDecision>;
+
+/** One action a player may take now, ready to return, and what it does. */
+export interface LegalActionView {
+  decision: ParticipantPlayerDecision;
+  effect: string;
+  /** Shots: the make chance if the shot went up now with nobody moving. */
+  estimatedMakePct?: number;
+  points?: 2 | 3;
+  /** Passes: the chance the pass is not deflected (a deflection is a turnover). */
+  estimatedCompletionPct?: number;
+}
+
+export const LegalActionViewSchema = z.strictObject({
+  decision: ParticipantPlayerDecisionSchema,
+  effect: z.string().min(1).max(400),
+  estimatedMakePct: z.number().int().min(0).max(100).exactOptional(),
+  points: z.union([z.literal(2), z.literal(3)]).exactOptional(),
+  estimatedCompletionPct: z.number().int().min(0).max(100).exactOptional(),
+}) satisfies z.ZodType<LegalActionView>;
+
+/** A player on the floor as the teamwork observation describes them. */
+export interface CourtPlayerView {
+  playerId: string;
+  team: Team;
+  position: Position;
+  xCm: number;
+  yCm: number;
+  hasBall: boolean;
+  distanceFromYouCm: number;
+  /** Distance to the basket the offense attacks this possession. */
+  distanceToBasketCm: number;
+  /** Distance to the nearest player of the other team. */
+  nearestOpponentCm: number;
+  /** OPEN (3 m or more from any opponent), GUARDED (1.5–3 m) or TIGHT. */
+  openness: "OPEN" | "GUARDED" | "TIGHT";
+}
+
+const CourtPlayerViewSchema = z.strictObject({
+  playerId: z.string().min(1).max(100),
+  team: TeamSchema,
+  position: PositionSchema,
+  xCm: z.number().int().min(0).max(2_865),
+  yCm: z.number().int().min(0).max(1_524),
+  hasBall: z.boolean(),
+  distanceFromYouCm: z.number().int().nonnegative().max(4_000),
+  distanceToBasketCm: z.number().int().nonnegative().max(4_000),
+  nearestOpponentCm: z.number().int().nonnegative().max(4_000),
+  openness: z.enum(["OPEN", "GUARDED", "TIGHT"]),
+}) satisfies z.ZodType<CourtPlayerView>;
+
+/** The plain-language situation at the top of a teamwork observation. */
+export interface PlayerSituationView {
+  summary: string;
+  youHaveTheBall: boolean;
+  yourTeamIs: "OFFENSE" | "DEFENSE";
+  ballHandler: { playerId: string; team: Team; position: Position } | null;
+  /** This decision's number in the possession, counted from 1. */
+  decision: number;
+  decisionsInPossession: number;
+  lastDecision: boolean;
+  /** You caught a pass last decision: a shot now gets the catch bonus. */
+  catchAndShoot: boolean;
+  quarter: number;
+  gameClockMs: number;
+  shotClockMs: number;
+  score: { yourTeam: number; opponent: number };
+  /** The basket the offense attacks this possession. */
+  basket: { xCm: number; yCm: number };
+  /** On defense: the attacker you are matched up with (same position). */
+  yourAssignment: string | null;
+}
+
+const PlayerSituationViewSchema = z.strictObject({
+  summary: z.string().min(1).max(1_200),
+  youHaveTheBall: z.boolean(),
+  yourTeamIs: z.enum(["OFFENSE", "DEFENSE"]),
+  ballHandler: z
+    .strictObject({
+      playerId: z.string().min(1).max(100),
+      team: TeamSchema,
+      position: PositionSchema,
+    })
+    .nullable(),
+  decision: z.number().int().positive().max(4),
+  decisionsInPossession: z.number().int().min(2).max(4),
+  lastDecision: z.boolean(),
+  catchAndShoot: z.boolean(),
+  quarter: z.number().int().positive().max(1_000),
+  gameClockMs: z.number().int().nonnegative().max(720_000),
+  shotClockMs: z.number().int().nonnegative().max(24_000),
+  score: z.strictObject({
+    yourTeam: z.number().int().nonnegative().max(1_000),
+    opponent: z.number().int().nonnegative().max(1_000),
+  }),
+  basket: z.strictObject({
+    xCm: z.number().int().min(0).max(2_865),
+    yCm: z.number().int().min(0).max(1_524),
+  }),
+  yourAssignment: z.string().min(1).max(100).nullable(),
+}) satisfies z.ZodType<PlayerSituationView>;
+
 export interface PlayerObservation {
+  /** Teamwork rules (V2) only: the situation first, then the original fields. */
+  format?: "ABL-PLAYER-OBSERVATION-V2";
+  rules?: typeof RULES_V2;
+  situation?: PlayerSituationView;
+  legalActions?: LegalActionView[];
+  /** Actions that would be ignored or have no effect, and why. */
+  notUseful?: string[];
+  court?: {
+    you: CourtPlayerView;
+    teammates: CourtPlayerView[];
+    opponents: CourtPlayerView[];
+  };
+  rulesSummary?: string[];
   observationId: string;
   playerId: string;
   team: Team;
@@ -166,6 +331,19 @@ export interface PlayerObservation {
 }
 
 export const PlayerObservationSchema = z.strictObject({
+  format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
+  rules: z.literal(RULES_V2).exactOptional(),
+  situation: PlayerSituationViewSchema.exactOptional(),
+  legalActions: z.array(LegalActionViewSchema).min(1).max(16).exactOptional(),
+  notUseful: z.array(z.string().min(1).max(400)).max(8).exactOptional(),
+  court: z
+    .strictObject({
+      you: CourtPlayerViewSchema,
+      teammates: z.array(CourtPlayerViewSchema).length(4),
+      opponents: z.array(CourtPlayerViewSchema).length(5),
+    })
+    .exactOptional(),
+  rulesSummary: z.array(z.string().min(1).max(400)).max(12).exactOptional(),
   observationId: z.string().min(1).max(300),
   playerId: z.string().min(1).max(100),
   team: TeamSchema,

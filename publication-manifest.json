@@ -1,10 +1,10 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "c3543e32a2022d7833b582b1d4262421bb6845d6",
+  "ablReleaseCommit": "34aa6f6cf154520dd87efbdf902acea33c4f399d",
   "launchStateDigest": "0x6b39bfefbb69995795216886487e6d499975ccf8ccc8a14a92ebebc949f833fd",
   "origins": {
-    "publicApi": "https://52e52c43bff8167458550d0a8053e283.us-was-1.preview.bl.run",
+    "publicApi": "https://f0f283bd56f3a3ef1054677b70ada235.us-was-1.preview.bl.run",
     "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
     "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
@@ -71,9 +71,9 @@
     },
     {
       "path": "skills/abl-league/dist/abl-join.mjs",
-      "bytes": 1106420,
+      "bytes": 1106856,
       "mediaType": "text/javascript",
-      "sha256": "0x3c3de2b47891e540fc9c855ece3e4c0471f58bbfc7d1421ea93d56ed7c3519b8"
+      "sha256": "0xd3cb61db303e12843f321cd5bbe8efae37873d35634fd9fe9617ecb796206275"
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
@@ -85,7 +85,7 @@
       "path": "skills/abl-league/dist/manifest.json",
       "bytes": 191,
       "mediaType": "application/json",
-      "sha256": "0xcf1a5aa5fb366df7c1e3b7656751951c8c8b50ba4cf3273f104481ebe94ad8ff"
+      "sha256": "0xe13c8d202522c974a1f9c3eb339f709ee6b0c42740ab310d8f4de08c6217c04d"
     },
     {
       "path": "skills/abl-league/dist/runner-manifest.json",
@@ -101,9 +101,9 @@
     },
     {
       "path": "verifier/abl-verifier.mjs",
-      "bytes": 710114,
+      "bytes": 712790,
       "mediaType": "text/javascript",
-      "sha256": "0xdc0b55e0ffc0c540be1cc4ad35fdb8cfb6d9762b78c84dc4fb7d09431d5d5732"
+      "sha256": "0x1bf6f3390899f76bf3105bf99fac0b2347f75775be3ae6e7c1ff845f3fbec476"
     },
     {
       "path": "verifier/schemas/event-packet.json",
@@ -137,9 +137,9 @@
     },
     {
       "path": "verifier/source/packages/basketball/src/types.ts",
-      "bytes": 13053,
+      "bytes": 19749,
       "mediaType": "text/javascript",
-      "sha256": "0xd5370f645967f3e5737452905a80dbe3518d6bda1c7c9b57ef34e39e2fdf8779"
+      "sha256": "0x384e19bbfe6290031585674c7781ee99b4a0dcacb7e1bc27bde59def24c6d4b6"
     },
     {
       "path": "verifier/source/packages/recognition/src/base-checkpoints.ts",
@@ -203,9 +203,9 @@
     },
     {
       "path": "verifier/source/packages/schemas/src/index.ts",
-      "bytes": 75881,
+      "bytes": 76630,
       "mediaType": "text/javascript",
-      "sha256": "0xf0e2620df6807875187e818f7f238b895d3b971b3252b23706b7206cbaccf2d6"
+      "sha256": "0x1af71f87eecc2c2afeb4c3882f4f0ccdecbbff5502b34ea0530141b944519fa3"
     },
     {
       "path": "verifier/source/packages/schemas/src/publication-images.ts",
@@ -260,14 +260,14 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:bce603671e0ade70d366c",
-      "buildContextSha256": "0xd136c9aae2fca949311ee4882fb4793d0473588d983286039958122e414d2909"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:be5cbeccfe795816fcaaa",
+      "buildContextSha256": "0xfb4ea3b7873ca6d9c41794d70a192509d3bbe05c48ae439ee0e03bd664d2a250"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b7f684848d7cac00e19e2",
-      "buildContextSha256": "0x3f36199639f76a37e8d73c4a87dc625e843deec7a6fdd8d5840d14375e4f080f"
+      "imageReference": "sandbox/abl-stage-c-arena-image:b354f471513408dc752b5",
+      "buildContextSha256": "0xc772a83baf9b06e3205da9ade73babcc7f04eab03b6932e862fce0a17558d04f"
     },
     {
       "name": "candidate-edge",
@@ -278,8 +278,8 @@
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:b58557ea982ea35ea7f1c",
-      "buildContextSha256": "0x6774f43ea39e6bd10e6195b5351264e95aa3514ddf33f938182e9d347f5d3568"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:bdfb4965617bf1d64a4e6",
+      "buildContextSha256": "0x3b343d7dec723b335aad50237875f71bcb9249d3c82150f4baec270ad980a942"
     },
     {
       "name": "broker",
@@ -289,6 +289,6 @@
     }
   ],
   "privateDeploymentDigest": "0x3ece3a38efb6ba5f1777582c8b50573914bc66bb7c721e909172267fa1dc7a2a",
-  "createdAt": "2026-10-07T21:16:50.382Z",
+  "createdAt": "2026-10-08T06:20:06.000Z",
   "compatibilityVersion": "3.0.0"
 }

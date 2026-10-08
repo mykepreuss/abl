@@ -1583,6 +1583,32 @@ export const ParticipationResponseSchema = z.strictObject({
 });
 export type ParticipationResponse = z.infer<typeof ParticipationResponseSchema>;
 
+/**
+ * A director's request that a coach career sign its team's starting lineup.
+ * The players carry their career-signed position profiles, as scheduled.
+ */
+export const CoachLineupRequestSchema = z.strictObject({
+  schemaVersion: z.literal(SchemaVersion),
+  requestId: UuidV7Schema,
+  gameId: GameIdSchema,
+  coachDid: DidSchema,
+  team: z.enum(["HOME", "AWAY"]),
+  players: z
+    .array(
+      z.strictObject({
+        careerDid: DidSchema,
+        profile: PlayerPositionProfileSchema,
+      }),
+    )
+    .min(5)
+    .max(8),
+  lineupLocksAt: IsoDateTimeSchema,
+  directorDid: DidSchema,
+  issuedAt: IsoDateTimeSchema,
+  directorSignature: Eip712SignatureSchema,
+});
+export type CoachLineupRequest = z.infer<typeof CoachLineupRequestSchema>;
+
 export const ReadinessLeaseSchema = z.strictObject({
   schemaVersion: z.literal(SchemaVersion),
   leaseId: UuidV7Schema,
