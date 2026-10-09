@@ -64,14 +64,28 @@ export const RULES_V3 = "ABL-RULES-V3" as const;
  * instead of a literal HOLD; see auto-play.ts.
  */
 export const RULES_V4 = "ABL-RULES-V4" as const;
+/**
+ * V4 exactly (the same resolution, auto-play included), with a player
+ * observation that states each of the ball handler's options' expected
+ * points and lists them best first; see rules-v3.ts.
+ */
+export const RULES_V5 = "ABL-RULES-V5" as const;
 
-/** The rules that consult officials only when something happens (V3, V4). */
-export type ConditionalOfficiatingRules = typeof RULES_V3 | typeof RULES_V4;
+/** The rules that consult officials only when something happens (V3-V5). */
+export type ConditionalOfficiatingRules =
+  | typeof RULES_V3
+  | typeof RULES_V4
+  | typeof RULES_V5;
 
 export function isConditionalOfficiating(
   version: string | undefined,
 ): version is ConditionalOfficiatingRules {
-  return version === RULES_V3 || version === RULES_V4;
+  return version === RULES_V3 || version === RULES_V4 || version === RULES_V5;
+}
+
+/** The rules that auto-play decisions careers signed as fallbacks (V4, V5). */
+export function autoPlaysFallbacks(version: string | undefined): boolean {
+  return version === RULES_V4 || version === RULES_V5;
 }
 
 /**
@@ -91,14 +105,18 @@ export interface PossessionFouls {
  * a V2 state has exactly the V2 fields, so its roots are unchanged too.
  */
 export interface PossessionRules {
-  version: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4;
+  version:
+    | typeof RULES_V2
+    | typeof RULES_V3
+    | typeof RULES_V4
+    | typeof RULES_V5;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
   catchWindow: number | null;
-  /** V3 and V4 only: fouls standing when the possession opened. */
+  /** V3-V5 only: fouls standing when the possession opened. */
   fouls?: PossessionFouls;
-  /** V3 and V4 only: replay reviews the game had already held. */
+  /** V3-V5 only: replay reviews the game had already held. */
   reviewsUsed?: number;
 }
 
@@ -135,10 +153,17 @@ const PossessionRulesV4Schema = z.strictObject({
   ...conditionalOfficiatingFields,
 });
 
+/** V5 keeps exactly V4's possession state; only its version differs. */
+const PossessionRulesV5Schema = z.strictObject({
+  version: z.literal(RULES_V5),
+  ...conditionalOfficiatingFields,
+});
+
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
   PossessionRulesV4Schema,
+  PossessionRulesV5Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -269,6 +294,12 @@ const ParticipantPlayerDecisionSchema = z.discriminatedUnion("action", [
 /** One action a player may take now, ready to return, and what it does. */
 export interface LegalActionView {
   decision: ParticipantPlayerDecision;
+  /**
+   * V5, the ball handler's options: the points this option is expected to
+   * score (see rules-v3.ts, expectedPointsV5). Options are listed by it,
+   * best first; a HOLD before the last decision has none and comes last.
+   */
+  expectedPoints?: number;
   effect: string;
   /** Shots: the make chance if the shot went up now with nobody moving. */
   estimatedMakePct?: number;
@@ -279,6 +310,7 @@ export interface LegalActionView {
 
 export const LegalActionViewSchema = z.strictObject({
   decision: ParticipantPlayerDecisionSchema,
+  expectedPoints: z.number().min(0).max(5).exactOptional(),
   effect: z.string().min(1).max(400),
   estimatedMakePct: z.number().int().min(0).max(100).exactOptional(),
   points: z.union([z.literal(2), z.literal(3)]).exactOptional(),
@@ -367,9 +399,9 @@ const PlayerSituationViewSchema = z.strictObject({
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
-  /** Teamwork rules (V2-V4) only: the situation first, then the original fields. */
+  /** Teamwork rules (V2-V5) only: the situation first, then the original fields. */
   format?: "ABL-PLAYER-OBSERVATION-V2";
-  rules?: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4;
+  rules?: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4 | typeof RULES_V5;
   situation?: PlayerSituationView;
   legalActions?: LegalActionView[];
   /** Actions that would be ignored or have no effect, and why. */
@@ -397,7 +429,7 @@ export interface PlayerObservation {
 
 export const PlayerObservationSchema = z.strictObject({
   format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
-  rules: z.enum([RULES_V2, RULES_V3, RULES_V4]).exactOptional(),
+  rules: z.enum([RULES_V2, RULES_V3, RULES_V4, RULES_V5]).exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
   legalActions: z.array(LegalActionViewSchema).min(1).max(16).exactOptional(),
   notUseful: z.array(z.string().min(1).max(400)).max(8).exactOptional(),
@@ -408,7 +440,8 @@ export const PlayerObservationSchema = z.strictObject({
       opponents: z.array(CourtPlayerViewSchema).length(5),
     })
     .exactOptional(),
-  rulesSummary: z.array(z.string().min(1).max(400)).max(12).exactOptional(),
+  // V3 has 11 rules and V4 12; V5 adds one on expected points.
+  rulesSummary: z.array(z.string().min(1).max(400)).max(16).exactOptional(),
   observationId: z.string().min(1).max(300),
   playerId: z.string().min(1).max(100),
   team: TeamSchema,
@@ -619,8 +652,8 @@ export interface ResolutionEvent {
     | "FREE_THROW"
     | "VIOLATION"
     | "REPLAY_REVIEW"
-    // V4 only: decisions in a window that the engine auto-played because
-    // their careers signed fallbacks (no valid decision in time).
+    // V4 and V5 only: decisions in a window that the engine auto-played
+    // because their careers signed fallbacks (no valid decision in time).
     | "AUTO_PLAY";
   data: Record<string, string | number | boolean | null>;
   stateRoot: `0x${string}`;
