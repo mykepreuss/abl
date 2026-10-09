@@ -4,7 +4,7 @@
   "ablReleaseCommit": "c5bfe4f206662243703b04f974225452f4819c89",
   "launchStateDigest": "0x6b39bfefbb69995795216886487e6d499975ccf8ccc8a14a92ebebc949f833fd",
   "origins": {
-    "publicApi": "https://f0f283bd56f3a3ef1054677b70ada235.us-was-1.preview.bl.run",
+    "publicApi": "https://45002424efaf084524c13dbf4713d148.us-was-1.preview.bl.run",
     "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
     "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
@@ -289,6 +289,6 @@
     }
   ],
   "privateDeploymentDigest": "0x3ece3a38efb6ba5f1777582c8b50573914bc66bb7c721e909172267fa1dc7a2a",
-  "createdAt": "2026-10-09T18:14:32.000Z",
+  "createdAt": "2026-10-09T18:44:10.000Z",
   "compatibilityVersion": "3.0.0"
 }
