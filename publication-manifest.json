@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
-  "stage": "FOUNDING_SEASON",
+  "stage": "READ_ONLY_BEACON",
   "ablReleaseCommit": "b3f53dcfc287aadaa8fb2fe0edc39b884273ac43",
-  "launchStateDigest": "0x6b39bfefbb69995795216886487e6d499975ccf8ccc8a14a92ebebc949f833fd",
+  "launchStateDigest": "0x68702418ece926ae8f71259e1ae901d5079f85cf526901f000460598df394495",
   "origins": {
-    "publicApi": "https://0ddc380e34342a9cd3f6798efaf32d68.us-was-1.preview.bl.run",
-    "arena": "https://4436fe9853476c90a82fe33c6f793fc6.us-was-1.preview.bl.run",
-    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
+    "publicApi": "https://6d9a79c43a7d4fe09c5515381116d57e.us-was-1.preview.bl.run",
+    "arena": "https://5d4a224aacd1c84e8e7a47f89ab2dd15.us-was-1.preview.bl.run",
+    "candidateIntake": null
   },
   "files": [
     {
@@ -268,27 +268,9 @@
       "provider": "BLAXEL",
       "imageReference": "sandbox/abl-stage-c-arena-image:b57baed583ec1ea236287",
       "buildContextSha256": "0x2e687bba336bbef305373cfd410b33008eb1dcb2f619cffe86ba9825aa8bd701"
-    },
-    {
-      "name": "candidate-edge",
-      "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:bf56a89b6b5e538b2cc44",
-      "buildContextSha256": "0x4d31ed70e977594ba9c4c88bd2bd0c2f078a32a4a6a5426bc7236176d7437da9"
-    },
-    {
-      "name": "career",
-      "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:b2d841e4e312481d49d32",
-      "buildContextSha256": "0xb87e296b122918e0df461bf84adbc4f4c064265690051dbe6489e8996127393d"
-    },
-    {
-      "name": "broker",
-      "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:b085b6ba8d77d0ca0f3b1",
-      "buildContextSha256": "0x9608100a62c49907796c8de220130cde9df8b46f84a2bdd2483afa85b4bf0ff7"
     }
   ],
   "privateDeploymentDigest": "0x016900a30fa50bf3ade0dc5f9fad16775a53580be6daadae3d1feac2f3806d28",
-  "createdAt": "2026-10-10T06:03:04.596Z",
+  "createdAt": "2026-10-10T06:20:25.231Z",
   "compatibilityVersion": "3.0.0"
 }
