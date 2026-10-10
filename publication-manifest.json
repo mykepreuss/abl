@@ -1,11 +1,11 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "READ_ONLY_BEACON",
-  "ablReleaseCommit": "b3f53dcfc287aadaa8fb2fe0edc39b884273ac43",
+  "ablReleaseCommit": "abd42cbe40440bbd265b4bf7bce120878a1756e4",
   "launchStateDigest": "0x68702418ece926ae8f71259e1ae901d5079f85cf526901f000460598df394495",
   "origins": {
-    "publicApi": "https://6d9a79c43a7d4fe09c5515381116d57e.us-was-1.preview.bl.run",
-    "arena": "https://5d4a224aacd1c84e8e7a47f89ab2dd15.us-was-1.preview.bl.run",
+    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
+    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
     "candidateIntake": null
   },
   "files": [
@@ -260,17 +260,17 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:bf848c7b67d2a8d44ebdd",
+      "imageReference": "sandbox/abl-stage-c-public-api-image:b8ec7319a643113c38c5c",
       "buildContextSha256": "0xdeb62701ef687b204ae73880926276c780e3284f3b2a382feb0a87dae1e5c6d2"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b57baed583ec1ea236287",
+      "imageReference": "sandbox/abl-stage-c-arena-image:bd837119c910a77938579",
       "buildContextSha256": "0x2e687bba336bbef305373cfd410b33008eb1dcb2f619cffe86ba9825aa8bd701"
     }
   ],
-  "privateDeploymentDigest": "0x016900a30fa50bf3ade0dc5f9fad16775a53580be6daadae3d1feac2f3806d28",
-  "createdAt": "2026-10-10T06:20:25.231Z",
+  "privateDeploymentDigest": "0xfef61e8eead5bb80bc2bb7824b501eaf7006e2a4f2926b435a33fd10388fd1da",
+  "createdAt": "2026-10-10T08:38:28.752Z",
   "compatibilityVersion": "3.0.0"
 }
