@@ -7,6 +7,8 @@ import {
 } from "@abl/schemas";
 import { z } from "zod";
 
+import { PlayerAttributesSchema, type PlayerAttributes } from "./attributes.js";
+
 const Sha256HexSchema = z
   .string()
   .regex(/^0x[0-9a-f]{64}$/) as z.ZodType<`0x${string}`>;
@@ -70,22 +72,37 @@ export const RULES_V4 = "ABL-RULES-V4" as const;
  * points and lists them best first; see rules-v3.ts.
  */
 export const RULES_V5 = "ABL-RULES-V5" as const;
+/**
+ * V5's officiating, auto-play and expected-points view, with each player's
+ * own attributes (snapshotted into the game when it is created) deciding
+ * the chances, and the quality of decisions changing what happens: good
+ * reads raise success, defensive anticipation contests and deflects, and
+ * composure keeps a high-IQ player's results close to their shot quality;
+ * see rules-v6.ts.
+ */
+export const RULES_V6 = "ABL-RULES-V6" as const;
 
-/** The rules that consult officials only when something happens (V3-V5). */
+/** The rules that consult officials only when something happens (V3-V6). */
 export type ConditionalOfficiatingRules =
   | typeof RULES_V3
   | typeof RULES_V4
-  | typeof RULES_V5;
+  | typeof RULES_V5
+  | typeof RULES_V6;
 
 export function isConditionalOfficiating(
   version: string | undefined,
 ): version is ConditionalOfficiatingRules {
-  return version === RULES_V3 || version === RULES_V4 || version === RULES_V5;
+  return (
+    version === RULES_V3 ||
+    version === RULES_V4 ||
+    version === RULES_V5 ||
+    version === RULES_V6
+  );
 }
 
-/** The rules that auto-play decisions careers signed as fallbacks (V4, V5). */
+/** The rules that auto-play decisions careers signed as fallbacks (V4-V6). */
 export function autoPlaysFallbacks(version: string | undefined): boolean {
-  return version === RULES_V4 || version === RULES_V5;
+  return version === RULES_V4 || version === RULES_V5 || version === RULES_V6;
 }
 
 /**
@@ -109,16 +126,70 @@ export interface PossessionRules {
     | typeof RULES_V2
     | typeof RULES_V3
     | typeof RULES_V4
-    | typeof RULES_V5;
+    | typeof RULES_V5
+    | typeof RULES_V6;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
   catchWindow: number | null;
-  /** V3-V5 only: fouls standing when the possession opened. */
+  /** V3-V6 only: fouls standing when the possession opened. */
   fouls?: PossessionFouls;
-  /** V3-V5 only: replay reviews the game had already held. */
+  /** V3-V6 only: replay reviews the game had already held. */
   reviewsUsed?: number;
+  /**
+   * V6 only: each player's attributes, snapshotted into the game when it
+   * was created (a game replays exactly with the attributes it began with).
+   */
+  attributes?: Record<string, PlayerAttributes>;
+  /** V6 only: each player's field goals so far this game (composure). */
+  composure?: Record<string, ComposureRecord>;
+  /**
+   * V6 only: the current ball handler caught a well-read pass (to an open
+   * teammate or a cutter) last decision, so a shot now is in rhythm.
+   */
+  rhythm?: boolean;
+  /**
+   * V6 only, a game's first possession: the game's public development
+   * commitments, which its film publishes as a LEDGER event.
+   */
+  ledger?: LedgerCommitmentsState;
 }
+
+/** V6: what a game's first possession publishes about its development. */
+export interface LedgerCommitmentsState {
+  seedCommitment: `0x${string}`;
+  ledgerCommitment: `0x${string}`;
+  attributesCommitment: `0x${string}`;
+  /** Player ID to the career's key for this game alone (gameSlotKey). */
+  slotKeys: Record<string, `0x${string}`>;
+}
+
+const CommitmentHashSchema = z
+  .string()
+  .regex(/^0x[0-9a-f]{64}$/) as z.ZodType<`0x${string}`>;
+
+export const LedgerCommitmentsStateSchema = z.strictObject({
+  seedCommitment: CommitmentHashSchema,
+  ledgerCommitment: CommitmentHashSchema,
+  attributesCommitment: CommitmentHashSchema,
+  slotKeys: z.record(z.string().min(1).max(100), CommitmentHashSchema),
+}) satisfies z.ZodType<LedgerCommitmentsState>;
+
+/**
+ * V6: a player's field goals so far in a game: attempts, makes, and the
+ * make chances those shots had before composure (in 10,000ths of a make).
+ */
+export interface ComposureRecord {
+  attempts: number;
+  made: number;
+  expectedBps: number;
+}
+
+export const ComposureRecordSchema = z.strictObject({
+  attempts: z.number().int().nonnegative().max(1_000),
+  made: z.number().int().nonnegative().max(1_000),
+  expectedBps: z.number().int().nonnegative().max(10_000_000),
+}) satisfies z.ZodType<ComposureRecord>;
 
 const PossessionRulesV2Schema = z.strictObject({
   version: z.literal(RULES_V2),
@@ -159,11 +230,22 @@ const PossessionRulesV5Schema = z.strictObject({
   ...conditionalOfficiatingFields,
 });
 
+/** V6 adds the players' attributes, their composure and a rhythm catch. */
+const PossessionRulesV6Schema = z.strictObject({
+  version: z.literal(RULES_V6),
+  ...conditionalOfficiatingFields,
+  attributes: z.record(z.string().min(1).max(100), PlayerAttributesSchema),
+  composure: z.record(z.string().min(1).max(100), ComposureRecordSchema),
+  rhythm: z.boolean(),
+  ledger: LedgerCommitmentsStateSchema.exactOptional(),
+});
+
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
   PossessionRulesV4Schema,
   PossessionRulesV5Schema,
+  PossessionRulesV6Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -399,10 +481,17 @@ const PlayerSituationViewSchema = z.strictObject({
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
-  /** Teamwork rules (V2-V5) only: the situation first, then the original fields. */
+  /** Teamwork rules (V2-V6) only: the situation first, then the original fields. */
   format?: "ABL-PLAYER-OBSERVATION-V2";
-  rules?: typeof RULES_V2 | typeof RULES_V3 | typeof RULES_V4 | typeof RULES_V5;
+  rules?:
+    | typeof RULES_V2
+    | typeof RULES_V3
+    | typeof RULES_V4
+    | typeof RULES_V5
+    | typeof RULES_V6;
   situation?: PlayerSituationView;
+  /** V6 only: your own attributes, as 0-100 ratings in whole points. */
+  ratings?: Record<keyof PlayerAttributes, number>;
   legalActions?: LegalActionView[];
   /** Actions that would be ignored or have no effect, and why. */
   notUseful?: string[];
@@ -429,8 +518,25 @@ export interface PlayerObservation {
 
 export const PlayerObservationSchema = z.strictObject({
   format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
-  rules: z.enum([RULES_V2, RULES_V3, RULES_V4, RULES_V5]).exactOptional(),
+  rules: z
+    .enum([RULES_V2, RULES_V3, RULES_V4, RULES_V5, RULES_V6])
+    .exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
+  ratings: z
+    .strictObject({
+      rim: z.number().min(0).max(100),
+      midRange: z.number().min(0).max(100),
+      three: z.number().min(0).max(100),
+      finishing: z.number().min(0).max(100),
+      passing: z.number().min(0).max(100),
+      ballSecurity: z.number().min(0).max(100),
+      onBallDefense: z.number().min(0).max(100),
+      helpDefense: z.number().min(0).max(100),
+      speed: z.number().min(0).max(100),
+      stamina: z.number().min(0).max(100),
+      iq: z.number().min(0).max(100),
+    })
+    .exactOptional(),
   legalActions: z.array(LegalActionViewSchema).min(1).max(16).exactOptional(),
   notUseful: z.array(z.string().min(1).max(400)).max(8).exactOptional(),
   court: z
@@ -440,7 +546,8 @@ export const PlayerObservationSchema = z.strictObject({
       opponents: z.array(CourtPlayerViewSchema).length(5),
     })
     .exactOptional(),
-  // V3 has 11 rules and V4 12; V5 adds one on expected points.
+  // V3 has 11 rules and V4 12; V5 adds one on expected points, and V6
+  // three on attributes, reads and composure.
   rulesSummary: z.array(z.string().min(1).max(400)).max(16).exactOptional(),
   observationId: z.string().min(1).max(300),
   playerId: z.string().min(1).max(100),
@@ -652,9 +759,15 @@ export interface ResolutionEvent {
     | "FREE_THROW"
     | "VIOLATION"
     | "REPLAY_REVIEW"
-    // V4 and V5 only: decisions in a window that the engine auto-played
+    // V4-V6 only: decisions in a window that the engine auto-played
     // because their careers signed fallbacks (no valid decision in time).
-    | "AUTO_PLAY";
+    | "AUTO_PLAY"
+    // V6 only: how each participant's decision in a window read the play,
+    // the record player development is derived from.
+    | "READS"
+    // V6 only, a game's first possession: the game's development
+    // commitments (its seed's fingerprint, ledger and attributes).
+    | "LEDGER";
   data: Record<string, string | number | boolean | null>;
   stateRoot: `0x${string}`;
   eventHash: `0x${string}`;

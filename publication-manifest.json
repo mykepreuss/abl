@@ -1,11 +1,11 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "READ_ONLY_BEACON",
-  "ablReleaseCommit": "abd42cbe40440bbd265b4bf7bce120878a1756e4",
+  "ablReleaseCommit": "e5fdefd6913f2f2f9fbe3c397ba9ccc03e3d3911",
   "launchStateDigest": "0x68702418ece926ae8f71259e1ae901d5079f85cf526901f000460598df394495",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
+    "publicApi": "https://33641559e1bf30ad858af803d98da966.us-was-1.preview.bl.run",
+    "arena": "https://bbc51c326f4cdf97f68444d407a5ff69.us-was-1.preview.bl.run",
     "candidateIntake": null
   },
   "files": [
@@ -101,9 +101,9 @@
     },
     {
       "path": "verifier/abl-verifier.mjs",
-      "bytes": 714731,
+      "bytes": 716646,
       "mediaType": "text/javascript",
-      "sha256": "0xcdcd33941feecd513c9c7488399d74650094536346020d1900ad4b9030101be8"
+      "sha256": "0x5ebe83701f7595021d6bfc738d67fe818c91ca36a3452170ac0d03f5aa2b44b6"
     },
     {
       "path": "verifier/schemas/event-packet.json",
@@ -124,6 +124,12 @@
       "sha256": "0x0c913e7942c40ae2c7cb8277f8d37662ccb879c0a67adc5237dc38ae944e1ecc"
     },
     {
+      "path": "verifier/source/packages/basketball/src/attributes.ts",
+      "bytes": 10906,
+      "mediaType": "text/javascript",
+      "sha256": "0xa13a36b9140750b6015827985d868628ff87c5c5a38f26602325b0a1641b15f5"
+    },
+    {
       "path": "verifier/source/packages/basketball/src/full-game.ts",
       "bytes": 26044,
       "mediaType": "text/javascript",
@@ -137,9 +143,9 @@
     },
     {
       "path": "verifier/source/packages/basketball/src/types.ts",
-      "bytes": 23657,
+      "bytes": 27783,
       "mediaType": "text/javascript",
-      "sha256": "0x9d8c3e862c34cf79d140a417b4ed5c124a3b6e9dab4981224e6a3db423a8a0ea"
+      "sha256": "0x4c8cb93491489929c6327e09953449c503ba74aa6d7ebf2ec9150a851f9f2c48"
     },
     {
       "path": "verifier/source/packages/recognition/src/base-checkpoints.ts",
@@ -260,17 +266,17 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b8ec7319a643113c38c5c",
-      "buildContextSha256": "0xdeb62701ef687b204ae73880926276c780e3284f3b2a382feb0a87dae1e5c6d2"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bdc7ca804253109b293b7",
+      "buildContextSha256": "0x2d5b2dd7fd63125fabf6e7de8c4f0703a5d0dfa4d5a7ba1c041f14c5059b638f"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:bd837119c910a77938579",
-      "buildContextSha256": "0x2e687bba336bbef305373cfd410b33008eb1dcb2f619cffe86ba9825aa8bd701"
+      "imageReference": "sandbox/abl-stage-c-arena-image:bb0bb4c563989fb388117",
+      "buildContextSha256": "0xa8df5d27ad432cb782d613e511b832442fc77308690a97c6b530f08fa672b8be"
     }
   ],
-  "privateDeploymentDigest": "0xfef61e8eead5bb80bc2bb7824b501eaf7006e2a4f2926b435a33fd10388fd1da",
-  "createdAt": "2026-10-10T08:38:28.752Z",
+  "privateDeploymentDigest": "0x6a78ec0a892d38f882b583cf7d14f247fcafa3784e40ee8d7acefa0824ff41c3",
+  "createdAt": "2026-10-10T15:15:59.739Z",
   "compatibilityVersion": "3.0.0"
 }
