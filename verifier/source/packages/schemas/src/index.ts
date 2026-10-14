@@ -1553,6 +1553,69 @@ export const RunnerHeartbeatSchema = z.strictObject({
 });
 export type RunnerHeartbeat = z.infer<typeof RunnerHeartbeatSchema>;
 
+export const RunnerScheduledGameSchema = z.strictObject({
+  gameId: GameIdSchema,
+  readinessCheckedAt: IsoDateTimeSchema,
+  scheduledTipoffAt: IsoDateTimeSchema,
+});
+export type RunnerScheduledGame = z.infer<typeof RunnerScheduledGameSchema>;
+
+/**
+ * A career's signed list of the accepted games its participant runner must be
+ * awake for. The relay lets the runner idle between games and wakes it ahead
+ * of each one. An empty list enrolls the career in idle cadence.
+ */
+export const RunnerScheduleReportSchema = z.strictObject({
+  schemaVersion: z.literal(SchemaVersion),
+  careerDid: DidSchema,
+  games: z.array(RunnerScheduledGameSchema).max(64),
+  reportedAt: IsoDateTimeSchema,
+  careerSignature: Eip712SignatureSchema,
+});
+export type RunnerScheduleReport = z.infer<typeof RunnerScheduleReportSchema>;
+
+/**
+ * The relay asks the competition director, which holds every scheduled game,
+ * for the upcoming games of the careers whose runners it lets idle. The
+ * director answers only for the careers named.
+ */
+export const RunnerScheduleLookupSchema = z.strictObject({
+  careerDids: z
+    .array(DidSchema.max(500))
+    .min(1)
+    .max(512)
+    .refine((dids) => new Set(dids).size === dids.length),
+});
+export type RunnerScheduleLookup = z.infer<typeof RunnerScheduleLookupSchema>;
+
+/** The director's answer: each named career's accepted games not yet over. */
+export const RunnerScheduleDirectorySchema = z.strictObject({
+  generatedAt: IsoDateTimeSchema,
+  careers: z
+    .array(
+      z.strictObject({
+        careerDid: DidSchema.max(500),
+        games: z.array(RunnerScheduledGameSchema).max(64),
+      }),
+    )
+    .max(512),
+});
+export type RunnerScheduleDirectory = z.infer<
+  typeof RunnerScheduleDirectorySchema
+>;
+
+/**
+ * The relay's advice with each heartbeat: keep the full cadence, or idle until
+ * nextContactAt. observedAt is the relay's clock, so a runner can measure the
+ * wait without trusting its own clock to match.
+ */
+export const RunnerCadenceHintSchema = z.object({
+  mode: z.enum(["ACTIVE", "IDLE"]),
+  nextContactAt: IsoDateTimeSchema,
+  observedAt: IsoDateTimeSchema,
+});
+export type RunnerCadenceHint = z.infer<typeof RunnerCadenceHintSchema>;
+
 export const GameScheduleNoticeSchema = z.strictObject({
   schemaVersion: z.literal(SchemaVersion),
   noticeId: UuidV7Schema,
