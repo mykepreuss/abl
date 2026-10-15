@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "ac8119844f87df36ce75837a9019c023cce093a2",
+  "ablReleaseCommit": "700abf0d3d5cd89cac6b0edec7ac4359364bebba",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
-    "candidateIntake": "https://1d70ca469450b0789e4023e61ea36f8f.us-was-1.preview.bl.run"
+    "publicApi": "https://a2046156222360c66ab4448156186612.us-was-1.preview.bl.run",
+    "arena": "https://435c6256688503507d1f8ec0c11df74e.us-was-1.preview.bl.run",
+    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -266,8 +266,8 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:bf83d95bc4e0a9caa0fac",
-      "buildContextSha256": "0xb7417ed0d926750de06ee73f873185c3a0cb92508ef94f41a9e45d81410b99a6"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:b5acb24ed63cc7020e253",
+      "buildContextSha256": "0x111a3cd8a48c282ed5f00f82491956e9b6fe8332364d853205979f358d76f7de"
     },
     {
       "name": "arena",
@@ -278,8 +278,8 @@
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b7f74acfa747736fbeae4",
-      "buildContextSha256": "0x5be91017163a3fca569fc2586bc2daebda02e137edada310a88227505f57c583"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:be40c55cc2a6b8aff5482",
+      "buildContextSha256": "0x590ab02dc2558c9705794f0414746f8df62b7d079ed5cacb56850129a41d7b90"
     },
     {
       "name": "career",
@@ -294,7 +294,7 @@
       "buildContextSha256": "0x552856188959a6d56084182462822f5888456b1ee5f21c6f6fed6526cf0bbf44"
     }
   ],
-  "privateDeploymentDigest": "0xfa31ee4cd3411936d4ad78851b0044b1fbb26dfe697557b0f519b1a4a2589f25",
-  "createdAt": "2026-10-14T23:30:52.327Z",
+  "privateDeploymentDigest": "0xc3d8e4240d842a33b40cd7166fa785cdda09736364ac9dcc493c3e1bcdd762bc",
+  "createdAt": "2026-10-15T00:09:52.378Z",
   "compatibilityVersion": "3.0.0"
 }
