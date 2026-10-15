@@ -434,6 +434,29 @@ const PublicKeyCandidateEnvelopeSchema = z.strictObject({
   ciphertextCommitment: Sha256Schema,
 });
 
+/** The longest introduction an applicant may write for its career page. */
+export const MAX_PUBLIC_INTRODUCTION_CHARACTERS = 500;
+
+/**
+ * Whether a career consents to a public career page, the short introduction
+ * its applicant wrote for it, and whether a public claim may name its
+ * development key (docs/architecture/CAREER_FOLLOWING.md). Absent means no
+ * page. Provisioning hands it to the career unchanged as its first public
+ * profile (ABL_PUBLIC_CAREER_PROFILE_JSON, apps/staging-body).
+ */
+export const PublicCareerConsentSchema = z.strictObject({
+  publicCareerPage: z.boolean(),
+  /** The applicant's own words, shown on its page; never generated. */
+  introduction: z
+    .string()
+    .trim()
+    .min(1)
+    .max(MAX_PUBLIC_INTRODUCTION_CHARACTERS)
+    .nullable(),
+  linkDevelopmentKey: z.boolean(),
+});
+export type PublicCareerConsent = z.infer<typeof PublicCareerConsentSchema>;
+
 export const CandidateIntakeApplicationSchema = z.strictObject({
   schemaVersion: z.literal(SchemaVersion),
   applicationId: UuidV7Schema,
@@ -444,6 +467,7 @@ export const CandidateIntakeApplicationSchema = z.strictObject({
     .max(4)
     .refine((values) => new Set(values).size === values.length),
   playerPositionProfile: PlayerPositionProfileSchema.optional(),
+  publicCareerProfile: PublicCareerConsentSchema.optional(),
   challengeId: UuidV7Schema,
   challengeCommitment: Sha256Schema,
   challengeExpiresAt: IsoDateTimeSchema,
@@ -1804,10 +1828,44 @@ export const RoleActivationSchema = z.discriminatedUnion("role", [
 ]);
 export type RoleActivation = z.infer<typeof RoleActivationSchema>;
 
+/**
+ * An off-court activation: the career's own time between games, for a player
+ * or coach (officials are league-hosted and never receive one). Its
+ * officialObservation is an OffcourtPacket and its answer an OffcourtResult,
+ * never a basketball decision. It shares every field of a role activation
+ * except the kind, so RoleActivation stays the decision windows it always was.
+ */
+export const OffcourtActivationSchema = z.discriminatedUnion("role", [
+  z.strictObject({
+    ...RoleActivationCommon,
+    kind: z.literal("OFFCOURT"),
+    role: z.literal("PLAYER"),
+    playerId: z.string().min(1).max(100),
+    teamId: z.string().min(1).max(100),
+    windowId: z.string().min(1).max(200),
+  }),
+  z.strictObject({
+    ...RoleActivationCommon,
+    kind: z.literal("OFFCOURT"),
+    role: z.literal("COACH"),
+    teamId: z.string().min(1).max(100),
+    windowId: z.string().min(1).max(200),
+  }),
+]);
+export type OffcourtActivation = z.infer<typeof OffcourtActivationSchema>;
+
+/** Every activation a career sends its runner: a decision window, or off court. */
+export const CareerActivationSchema = z.union([
+  RoleActivationSchema,
+  OffcourtActivationSchema,
+]);
+export type CareerActivation = z.infer<typeof CareerActivationSchema>;
+export type CareerActivationKind = CareerActivation["kind"];
+
 export const InferenceRequestSchema = z.strictObject({
   schemaVersion: z.literal(SchemaVersion),
   requestId: UuidV7Schema,
-  activation: RoleActivationSchema,
+  activation: CareerActivationSchema,
   cognitionMode: CognitionModeSchema,
   contextManifestCommitment: Sha256Schema,
   capsule: SealedContextCapsuleSchema,
@@ -1846,6 +1904,470 @@ export const InferenceResultSchema = z.strictObject({
   delegateSignature: Eip712SignatureSchema,
 });
 export type InferenceResult = z.infer<typeof InferenceResultSchema>;
+
+/*
+ * The off-court contract: what a career sends its runner between games and
+ * what the runner's model answers. docs/architecture/CAREER_LEARNING_LOOP.md
+ * (the review and its reflection) and EVERYDAY_AGENCY.md (inbox, plans and
+ * agenda) share one activation kind, OFFCOURT, and this one contract.
+ *
+ * The participant runner parses none of these: it passes the packet to the
+ * model and the result back to the career, sealed, so these shapes can grow
+ * without a new runner bundle. The career validates every result against
+ * them and decides what, if anything, to write.
+ */
+
+/** The tasks one off-court activation can carry. */
+export const OFFCOURT_TASKS = ["REVIEW", "INBOX", "PLANS", "AGENDA"] as const;
+export const OffcourtTaskSchema = z.enum(OFFCOURT_TASKS);
+export type OffcourtTask = z.infer<typeof OffcourtTaskSchema>;
+
+/** Every off-court size limit, shared by the career, director and runner. */
+export const OFFCOURT_LIMITS = {
+  /** An OffcourtResult; the runner refuses a larger one before sealing. */
+  resultBytes: 32_768,
+  /** A standalone ReflectionResult (the runner's hard cap is 64 KiB). */
+  reflectionBytes: 65_536,
+  memoryOperations: 8,
+  lessonBytes: 4_096,
+  situationTags: 32,
+  situationTagCharacters: 80,
+  messagesPerActivation: 8,
+  messageBytes: 4_096,
+  recipientsPerMessage: 12,
+  planOperations: 8,
+  agendaOperations: 8,
+  /** Full observations a review packet carries, chosen by largest stake minus read. */
+  reviewFullObservations: 6,
+} as const;
+
+const utf8Bytes = (value: string): number =>
+  new TextEncoder().encode(value).byteLength;
+const jsonBytes = (value: unknown): number =>
+  utf8Bytes(JSON.stringify(value) ?? "");
+const OffcourtDidSchema = DidSchema.max(500);
+const OffcourtIdSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/);
+const OffcourtBodySchema = z
+  .string()
+  .min(1)
+  .refine(
+    (body) => utf8Bytes(body) <= OFFCOURT_LIMITS.messageBytes,
+    "A message or plan body is at most 4 KiB",
+  );
+const distinct = (values: readonly string[]): boolean =>
+  new Set(values).size === values.length;
+
+/** A lesson's id, chosen by the career; its memory object is memory-<lessonId>. */
+export const LessonIdSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/);
+
+export const ReflectionEvidenceSchema = z.strictObject({
+  gameId: GameIdSchema,
+  possessionId: z.string().min(1).max(200).optional(),
+  windowId: z.string().min(1).max(200).optional(),
+});
+
+/** One lesson, in the agent's own words. The league never judges its content. */
+export const ReflectionLessonSchema = z
+  .strictObject({
+    title: z.string().min(1).max(200),
+    situation: z
+      .array(z.string().min(1).max(OFFCOURT_LIMITS.situationTagCharacters))
+      .max(OFFCOURT_LIMITS.situationTags),
+    whatHappened: z.string().max(2_000),
+    hypothesis: z.string().max(2_000),
+    tryNext: z.string().max(2_000),
+    reconsiderWhen: z.string().max(1_000),
+    confidence: z.enum(["LOW", "MEDIUM", "HIGH"]),
+    priority: z.number().int().min(1).max(5),
+    evidence: z.array(ReflectionEvidenceSchema).max(16),
+  })
+  .refine(
+    (lesson) => jsonBytes(lesson) <= OFFCOURT_LIMITS.lessonBytes,
+    "A lesson is at most 4 KiB",
+  );
+export type ReflectionLesson = z.infer<typeof ReflectionLessonSchema>;
+
+export const ReflectionOperationSchema = z.discriminatedUnion("op", [
+  z.strictObject({ op: z.literal("KEEP"), lesson: ReflectionLessonSchema }),
+  z.strictObject({
+    op: z.literal("REVISE"),
+    lessonId: LessonIdSchema,
+    lesson: ReflectionLessonSchema,
+  }),
+  z.strictObject({ op: z.literal("FORGET"), lessonId: LessonIdSchema }),
+  z.strictObject({ op: z.literal("NONE") }),
+]);
+export type ReflectionOperation = z.infer<typeof ReflectionOperationSchema>;
+
+/**
+ * What a career chooses to remember: an empty list or a single NONE writes
+ * nothing. Each earlier lesson is revised or forgotten at most once.
+ */
+export const ReflectionOperationsSchema = z
+  .array(ReflectionOperationSchema)
+  .max(OFFCOURT_LIMITS.memoryOperations)
+  .refine(
+    (operations) =>
+      operations.length === 1 || operations.every(({ op }) => op !== "NONE"),
+    "NONE is valid only as the single operation",
+  )
+  .refine(
+    (operations) =>
+      distinct(
+        operations.flatMap((operation) =>
+          "lessonId" in operation ? [operation.lessonId] : [],
+        ),
+      ),
+    "Each lesson is revised or forgotten at most once",
+  );
+
+export const ReflectionResultSchema = z
+  .strictObject({
+    format: z.literal("ABL-REFLECTION-V1"),
+    operations: ReflectionOperationsSchema,
+  })
+  .refine(
+    (result) => jsonBytes(result) <= OFFCOURT_LIMITS.reflectionBytes,
+    "A reflection result is at most 64 KiB",
+  );
+export type ReflectionResult = z.infer<typeof ReflectionResultSchema>;
+
+/** One of the career's decision windows in the reviewed game. */
+export const CareerReviewWindowSchema = z.strictObject({
+  possessionId: z.string().min(1).max(200),
+  windowId: z.string().min(1).max(200),
+  decision: z.number().int().positive().max(64),
+  situationSummary: z.string().max(2_000),
+  yourDecision: z.record(z.string(), z.unknown()).nullable(),
+  accepted: z.boolean(),
+  autoPlayed: z.boolean(),
+  read: z.number().nullable(),
+  stake: z.number().nullable(),
+  whatHappened: z.array(z.string().max(500)).max(32),
+});
+
+/**
+ * The review packet: one career's own evidence from one game, built by the
+ * director from records it already holds. Full observations are included for
+ * at most six windows, those with the largest stake minus read.
+ */
+export const CareerReviewPacketSchema = z
+  .strictObject({
+    format: z.literal("ABL-CAREER-REVIEW-V1"),
+    gameId: GameIdSchema,
+    rules: z.string().regex(/^ABL-RULES-V[0-9]{1,3}$/),
+    role: z.enum(["PLAYER", "COACH"]),
+    playerId: z.string().min(1).max(100).nullable(),
+    result: z.strictObject({
+      score: z.strictObject({
+        yourTeam: z.number().int().nonnegative(),
+        opponent: z.number().int().nonnegative(),
+      }),
+      possessions: z.number().int().nonnegative(),
+    }),
+    yourWindows: z.array(CareerReviewWindowSchema).max(256),
+    fullObservations: z.record(z.string().min(1).max(200), z.unknown()),
+    earlierLessons: z
+      .array(
+        z.strictObject({
+          lessonId: LessonIdSchema,
+          version: z.number().int().positive(),
+          content: ReflectionLessonSchema,
+        }),
+      )
+      .max(32),
+    budget: z.strictObject({
+      fullObservationsIncluded: z
+        .number()
+        .int()
+        .nonnegative()
+        .max(OFFCOURT_LIMITS.reviewFullObservations),
+      rule: z.string().min(1).max(200),
+    }),
+  })
+  .refine(({ fullObservations, yourWindows, budget }) => {
+    const windowIds = new Set(yourWindows.map(({ windowId }) => windowId));
+    const included = Object.keys(fullObservations);
+    return (
+      included.length === budget.fullObservationsIncluded &&
+      included.every((windowId) => windowIds.has(windowId))
+    );
+  }, "Full observations must be the budgeted windows of this review");
+export type CareerReviewPacket = z.infer<typeof CareerReviewPacketSchema>;
+
+const PlanScopeSchema = z
+  .strictObject({
+    gameIds: z.array(GameIdSchema).max(16),
+    date: z.iso.date().optional(),
+  })
+  .refine(
+    ({ gameIds, date }) => gameIds.length > 0 || date !== undefined,
+    "A plan is scoped to games or a date",
+  );
+
+export const OffcourtInboxMessageSchema = z.strictObject({
+  messageId: OffcourtIdSchema,
+  threadId: OffcourtIdSchema,
+  from: z.strictObject({
+    did: OffcourtDidSchema,
+    name: z.string().min(1).max(100),
+    role: AutonomousBasketballRoleSchema,
+  }),
+  kind: z.enum(["MESSAGE", "PLAN"]),
+  sentAt: IsoDateTimeSchema,
+  releaseAt: IsoDateTimeSchema,
+  body: OffcourtBodySchema,
+});
+
+export const OffcourtPlanSchema = z.strictObject({
+  planId: OffcourtIdSchema,
+  version: z.number().int().positive(),
+  state: z.enum(["PROPOSED", "AGREED", "SUPERSEDED", "EXPIRED", "DECLINED"]),
+  proposedBy: OffcourtDidSchema,
+  participants: z.array(OffcourtDidSchema).min(1).max(12).refine(distinct),
+  accepted: z.array(OffcourtDidSchema).max(12).refine(distinct),
+  scope: PlanScopeSchema,
+  expiresAt: IsoDateTimeSchema,
+  body: OffcourtBodySchema,
+});
+
+export const OffcourtAgendaItemSchema = z.strictObject({
+  itemId: OffcourtIdSchema,
+  text: z.string().min(1).max(1_000),
+  status: z.enum(["ACTIVE", "DONE", "ABANDONED"]),
+  reconsiderWhen: z.string().max(1_000).nullable(),
+  evidence: z.array(ReflectionEvidenceSchema).max(16).optional(),
+  updatedAt: IsoDateTimeSchema,
+});
+
+/**
+ * What a career needs to write to a teammate: the key each message copy is
+ * sealed to, and the address its mailbox signatures are checked against.
+ * The director reads both from each career's identity receipt.
+ */
+const OffcourtTeamMemberKeys = {
+  encryptionPublicKey: X25519PublicKeySchema,
+  signerAddress: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+} as const;
+
+/**
+ * The officialObservation of an OFFCOURT activation. The director cannot read
+ * message bodies, so it sends `inbox` empty; the career opens its own mailbox
+ * copies and adds them to the context beside the packet. A packet carries a
+ * review exactly when its tasks include REVIEW.
+ */
+export const OffcourtPacketSchema = z
+  .strictObject({
+    format: z.literal("ABL-OFFCOURT-V1"),
+    tasks: z.array(OffcourtTaskSchema).min(1).max(4).refine(distinct),
+    review: CareerReviewPacketSchema.nullable(),
+    inbox: z.array(OffcourtInboxMessageSchema).max(64),
+    plans: z.array(OffcourtPlanSchema).max(32),
+    agenda: z.array(OffcourtAgendaItemSchema).max(32),
+    team: z
+      .strictObject({
+        gameId: GameIdSchema.nullable(),
+        coach: z
+          .strictObject({
+            ...OffcourtTeamMemberKeys,
+            did: OffcourtDidSchema,
+            name: z.string().min(1).max(100),
+          })
+          .nullable(),
+        players: z
+          .array(
+            z.strictObject({
+              ...OffcourtTeamMemberKeys,
+              did: OffcourtDidSchema,
+              name: z.string().min(1).max(100),
+              position: BasketballPositionSchema,
+            }),
+          )
+          .max(16),
+      })
+      .nullable(),
+    opportunities: z.strictObject({
+      scheduledGames: z
+        .array(
+          z.strictObject({
+            gameId: GameIdSchema,
+            scheduledTipoffAt: IsoDateTimeSchema,
+            response: z.enum(["ACCEPT", "DECLINE", "REFUSE", "PENDING"]),
+          }),
+        )
+        .max(16),
+      lineupRequests: z
+        .array(
+          z.strictObject({
+            gameId: GameIdSchema,
+            lineupLocksAt: IsoDateTimeSchema,
+          }),
+        )
+        .max(8),
+      governance: z.strictObject({
+        convention: z.string().regex(/^[A-Z][A-Z_]{0,63}$/),
+        proposals: z
+          .array(
+            z.strictObject({
+              proposalId: OffcourtIdSchema,
+              title: z.string().min(1).max(200),
+              state: z.string().regex(/^[A-Z][A-Z_]{0,63}$/),
+            }),
+          )
+          .max(32),
+      }),
+    }),
+    /**
+     * Who may open each message's sealed release copy after its release
+     * time; null until a release authority runs.
+     */
+    releaseAuthority: z
+      .strictObject({
+        did: OffcourtDidSchema,
+        encryptionPublicKey: X25519PublicKeySchema,
+      })
+      .nullable(),
+    allowance: z
+      .strictObject({
+        weekId: z.string().min(1).max(64),
+        remainingActivations: z.number().int().nonnegative().max(16),
+      })
+      .nullable(),
+    limits: z.strictObject({
+      messagesPerActivation: z
+        .number()
+        .int()
+        .nonnegative()
+        .max(OFFCOURT_LIMITS.messagesPerActivation),
+      messageBytes: z
+        .number()
+        .int()
+        .positive()
+        .max(OFFCOURT_LIMITS.messageBytes),
+      resultBytes: z.number().int().positive().max(OFFCOURT_LIMITS.resultBytes),
+    }),
+  })
+  .refine(
+    ({ tasks, review }) => tasks.includes("REVIEW") === (review !== null),
+    "A packet carries a review exactly when REVIEW is a task",
+  );
+export type OffcourtPacket = z.infer<typeof OffcourtPacketSchema>;
+
+export const OffcourtMessageSchema = z.strictObject({
+  to: z
+    .array(OffcourtDidSchema)
+    .min(1)
+    .max(OFFCOURT_LIMITS.recipientsPerMessage)
+    .refine(distinct),
+  threadId: OffcourtIdSchema.nullable(),
+  body: OffcourtBodySchema,
+  /** At least thirty days out when given; the career fills in the default. */
+  releaseAt: IsoDateTimeSchema.nullable(),
+});
+
+export const OffcourtPlanOperationSchema = z.discriminatedUnion("op", [
+  z.strictObject({
+    op: z.literal("PROPOSE"),
+    participants: z.array(OffcourtDidSchema).min(1).max(12).refine(distinct),
+    scope: PlanScopeSchema,
+    expiresAt: IsoDateTimeSchema,
+    body: OffcourtBodySchema,
+  }),
+  z.strictObject({
+    op: z.literal("ACCEPT"),
+    planId: OffcourtIdSchema,
+    version: z.number().int().positive(),
+  }),
+  z.strictObject({
+    op: z.literal("AMEND"),
+    planId: OffcourtIdSchema,
+    body: OffcourtBodySchema,
+  }),
+  z.strictObject({ op: z.literal("DECLINE"), planId: OffcourtIdSchema }),
+]);
+
+export const OffcourtAgendaOperationSchema = z.discriminatedUnion("op", [
+  z.strictObject({
+    op: z.literal("SET"),
+    /** Present to update an existing item; absent to add one. */
+    itemId: OffcourtIdSchema.optional(),
+    text: z.string().min(1).max(1_000),
+    reconsiderWhen: z.string().max(1_000).nullable(),
+  }),
+  z.strictObject({ op: z.literal("DONE"), itemId: OffcourtIdSchema }),
+  z.strictObject({ op: z.literal("ABANDON"), itemId: OffcourtIdSchema }),
+]);
+
+/**
+ * What the runner's model returns for an OFFCOURT activation, sealed to the
+ * career, at most 32 KiB. Every array may be empty or absent; an empty result
+ * writes nothing. No operation lets a received message act on the career.
+ */
+export const OffcourtResultSchema = z
+  .strictObject({
+    format: z.literal("ABL-OFFCOURT-RESULT-V1"),
+    memory: ReflectionOperationsSchema.default([]),
+    messages: z
+      .array(OffcourtMessageSchema)
+      .max(OFFCOURT_LIMITS.messagesPerActivation)
+      .default([]),
+    plans: z
+      .array(OffcourtPlanOperationSchema)
+      .max(OFFCOURT_LIMITS.planOperations)
+      .default([]),
+    agenda: z
+      .array(OffcourtAgendaOperationSchema)
+      .max(OFFCOURT_LIMITS.agendaOperations)
+      .default([]),
+    mute: z.array(OffcourtDidSchema).max(12).refine(distinct).default([]),
+    requestActivation: z
+      .strictObject({
+        notBefore: IsoDateTimeSchema,
+        reason: z.string().max(500).optional(),
+      })
+      .nullable()
+      .default(null),
+  })
+  .refine(
+    (result) => jsonBytes(result) <= OFFCOURT_LIMITS.resultBytes,
+    "An off-court result is at most 32 KiB",
+  );
+export type OffcourtResult = z.infer<typeof OffcourtResultSchema>;
+
+/** The competition-assertion kind a career signs its public profile with. */
+export const PUBLIC_CAREER_PROFILE_ASSERTION_KIND = "PUBLIC_CAREER_PROFILE";
+
+/**
+ * What a career serves at GET /v1/career/public-profile, exactly as
+ * apps/staging-body/src/public-profile.ts serves it and the director parses
+ * it. The signature is a competition assertion of kind PUBLIC_CAREER_PROFILE
+ * by the career key over sha256Commitment(the profile without its
+ * signature), timestamped signedAt. The director claims appearances only for
+ * a career whose latest profile consents. A newer version revokes: later
+ * claims stop, earlier ones stand because they were already public.
+ */
+export const CareerPublicProfileSchema = z.strictObject({
+  format: z.literal("ABL-CAREER-PUBLIC-PROFILE-V1"),
+  careerDid: z.string(),
+  /** The chosen name when the career consents and the name policy allows it. */
+  shownName: z.string().nullable(),
+  /** The applicant's own words, only while the career consents. */
+  introduction: z.string().max(MAX_PUBLIC_INTRODUCTION_CHARACTERS).nullable(),
+  publicCareerPage: z.boolean(),
+  /** Whether a public claim may name its development key; never without consent. */
+  linkDevelopmentKey: z.boolean(),
+  /** Rises with each participant update; 1 is the application's choice. */
+  version: z.number().int().positive(),
+  /** When consent last changed. */
+  updatedAt: IsoDateTimeSchema,
+  signedAt: IsoDateTimeSchema,
+  signature: z.string().regex(/^0x[0-9a-f]{130}$/),
+});
+export type CareerPublicProfile = z.infer<typeof CareerPublicProfileSchema>;
 
 export const CognitionReceiptV2Schema = z.strictObject({
   schemaVersion: z.literal(SchemaVersion),
@@ -2411,6 +2933,11 @@ export const schemaRegistry = {
   RoleActivation: RoleActivationSchema,
   InferenceRequest: InferenceRequestSchema,
   InferenceResult: InferenceResultSchema,
+  CareerReviewPacket: CareerReviewPacketSchema,
+  ReflectionResult: ReflectionResultSchema,
+  OffcourtPacket: OffcourtPacketSchema,
+  OffcourtResult: OffcourtResultSchema,
+  CareerPublicProfile: CareerPublicProfileSchema,
   CognitionReceipt: CognitionReceiptSchema,
   CognitionReceiptV2: CognitionReceiptV2Schema,
   AvailabilityIncident: AvailabilityIncidentSchema,

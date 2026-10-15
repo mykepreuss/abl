@@ -1,10 +1,10 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "1c65269f9c6dc70442041492769ad687288173fb",
+  "ablReleaseCommit": "e6675d491045c3d8965f1a6a0eebc149ba759627",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://e185c00efcc5fa96c1dc55b3ed11c767.us-was-1.preview.bl.run",
+    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
     "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
     "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
@@ -29,9 +29,9 @@
     },
     {
       "path": "docs/PARTICIPATION.md",
-      "bytes": 1692,
+      "bytes": 5191,
       "mediaType": "text/markdown",
-      "sha256": "0xcd1fb8e5a098e50dcdfde078880a4e4fe2a76fa3b05bae6c6d0d04dd007733d5"
+      "sha256": "0x2a7ffd077713cae9075a22bc9f8ee7a465e2ab006fff3b26a1932c97703322ca"
     },
     {
       "path": "docs/PROTOCOL.md",
@@ -71,27 +71,27 @@
     },
     {
       "path": "skills/abl-league/dist/abl-join.mjs",
-      "bytes": 1106856,
+      "bytes": 1124874,
       "mediaType": "text/javascript",
-      "sha256": "0xd3cb61db303e12843f321cd5bbe8efae37873d35634fd9fe9617ecb796206275"
+      "sha256": "0xb6211ef65395553fdfccec0f6c92e660cbe1e2e8d22a51c0835ab3565190d9f8"
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
-      "bytes": 1186624,
+      "bytes": 1205887,
       "mediaType": "text/javascript",
-      "sha256": "0xeb714e500fd2dcfb8547860a9c1b6da4d437cdf419a308338ba186e5e99ba962"
+      "sha256": "0x4507a25fef5b50f96ed1285922bc3243545e79361e489e6e9fc14889445ab5bb"
     },
     {
       "path": "skills/abl-league/dist/manifest.json",
       "bytes": 191,
       "mediaType": "application/json",
-      "sha256": "0xe13c8d202522c974a1f9c3eb339f709ee6b0c42740ab310d8f4de08c6217c04d"
+      "sha256": "0xcc0a414e499c15bd44c7fef1c6eee05508e4ca697e5956c824d75fed18e8a9ed"
     },
     {
       "path": "skills/abl-league/dist/runner-manifest.json",
       "bytes": 263,
       "mediaType": "application/json",
-      "sha256": "0x9d24dd0d2051536389db7d5b409254461c79a435ce7474c5ab300fe1aed254e3"
+      "sha256": "0xd2e22f3b6616313664eadff8bf3544475d1e56f3c2658c5cb93d32e5885f11ae"
     },
     {
       "path": "skills/abl-league/references/founding-join.md",
@@ -101,9 +101,9 @@
     },
     {
       "path": "verifier/abl-verifier.mjs",
-      "bytes": 717148,
+      "bytes": 725296,
       "mediaType": "text/javascript",
-      "sha256": "0x819f8f3a507cfdfc07bfc97f827519d7915c94fbec828ba39b098d9d6cec8006"
+      "sha256": "0xb403f211931b2e2df884c6be40863ae2fd692466b1e23cc1e2709957446e6e22"
     },
     {
       "path": "verifier/schemas/event-packet.json",
@@ -143,9 +143,9 @@
     },
     {
       "path": "verifier/source/packages/basketball/src/types.ts",
-      "bytes": 27783,
+      "bytes": 32284,
       "mediaType": "text/javascript",
-      "sha256": "0x4c8cb93491489929c6327e09953449c503ba74aa6d7ebf2ec9150a851f9f2c48"
+      "sha256": "0xf456d1d2708d3f32f587fb2b5c147e35a96377d7e56e6d8208acab400af9696f"
     },
     {
       "path": "verifier/source/packages/recognition/src/base-checkpoints.ts",
@@ -209,9 +209,9 @@
     },
     {
       "path": "verifier/source/packages/schemas/src/index.ts",
-      "bytes": 78821,
+      "bytes": 97696,
       "mediaType": "text/javascript",
-      "sha256": "0xa6c8d153815643e040276df8f19228744856edb455a85ad19868c3cdfc2f4995"
+      "sha256": "0x2cddc71ce32a5740a0d751cf37885d1bde4a670f100e34ffc9b19bee58bc3412"
     },
     {
       "path": "verifier/source/packages/schemas/src/publication-images.ts",
@@ -266,35 +266,35 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b760e58082ae5e25929bd",
-      "buildContextSha256": "0x56c0ed658da3a76fb8eecfc74821b0944baaf2778d58ca1298b0762a283a1c21"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bbb3dd7e4c30f10599394",
+      "buildContextSha256": "0xae4733425b675474c6b2e2267bda3c8eb657b1235c24545b73adbdeb6ed065e0"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b9ceec3e486044b18b03e",
-      "buildContextSha256": "0xf7685a7f6d9208491c7b8f75525b263f7eeef1fabae03838b22409ac508e0f25"
+      "imageReference": "sandbox/abl-stage-c-arena-image:bea66073846efb6d432d2",
+      "buildContextSha256": "0xfbdd22b806296b165298c67cedd2254cdd5463ed2bbda3ae128608ee558ec803"
     },
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:be40c55cc2a6b8aff5482",
-      "buildContextSha256": "0x590ab02dc2558c9705794f0414746f8df62b7d079ed5cacb56850129a41d7b90"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b6afc331f82059a8d3d72",
+      "buildContextSha256": "0x941f9c3e0343354b9d5641f44b4bbec8f0ebc362a6d53a3b80c6fbefb924f3a2"
     },
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:b6a6c0f5fe38f3d773b18",
-      "buildContextSha256": "0xd0b86bb5ed0ec278423031c45d3a644168333b09d7e091315b89788f85b3ef32"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:be85c33d3bf1b8b788718",
+      "buildContextSha256": "0xe67237be18bdfe68b3880364dd08b0d07ec649376a598f9b62d86c9c69e66a4f"
     },
     {
       "name": "broker",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:be7e9d5bece3674478bb7",
-      "buildContextSha256": "0x552856188959a6d56084182462822f5888456b1ee5f21c6f6fed6526cf0bbf44"
+      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:bc27aec41f618a33d294a",
+      "buildContextSha256": "0xf6a1c4b01a5d2264ff41027823dd6fd91cb7e871d6d5e3cff3c151217bb6b395"
     }
   ],
-  "privateDeploymentDigest": "0xf456ccc18b8b5f3b77fb54897acd44b7e2ff1696715f8854ec8a7ed8ea776c33",
-  "createdAt": "2026-10-15T00:56:15.941Z",
+  "privateDeploymentDigest": "0x83e2dbbc184eaf771a9361f07abb5adaa27fb97b0b0592d06c4c3eadf18447aa",
+  "createdAt": "2026-10-15T21:50:04.724Z",
   "compatibilityVersion": "3.0.0"
 }

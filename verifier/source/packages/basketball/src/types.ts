@@ -81,13 +81,63 @@ export const RULES_V5 = "ABL-RULES-V5" as const;
  * see rules-v6.ts.
  */
 export const RULES_V6 = "ABL-RULES-V6" as const;
+/**
+ * V6 exactly (its mechanics, officiating, auto-play and grading) with a
+ * factual participant view: each player is shown the court, the rules,
+ * their own ratings and their legal actions, without the league's
+ * valuation of those actions (no expected points or chances, no
+ * best-first order or labels). The engine's own assessment of every
+ * option (assessPlayer) still drives auto-play and grading, exactly as
+ * under V6; see rules-v3.ts (factualView).
+ */
+export const RULES_V7 = "ABL-RULES-V7" as const;
+/**
+ * V6 exactly (its mechanics, view, officiating and grading), with the
+ * coaches' instructions in play: each team's standing tactic (the last
+ * PACE or SPACE its coach called for its offense, the last SWITCH or
+ * PROTECT_RIM for its defense) shapes the moves its players' observations
+ * suggest and what auto-play plays for them. A window's instruction takes
+ * effect from the next decision (coaches decide alongside their players)
+ * and carries to the next possession; RETAIN_CURRENT_TACTIC_AND_LINEUP
+ * keeps both. See auto-play.ts and rules-v3.ts (assessPlayer).
+ */
+export const RULES_V8 = "ABL-RULES-V8" as const;
+/**
+ * V8's coaching (standing tactics, effective from the next decision and
+ * carried across possessions) with V7's factual participant view, over the
+ * same V6 mechanics, grading and auto-play: a V9 possession plays, grades
+ * and auto-plays exactly as its V8 twin; only what players are shown
+ * differs (factualView of the coached assessment).
+ */
+export const RULES_V9 = "ABL-RULES-V9" as const;
 
-/** The rules that consult officials only when something happens (V3-V6). */
+/** A coach's offensive and defensive calls, as V8 keeps them. */
+export interface TeamTactic {
+  offense: "PACE" | "SPACE" | null;
+  defense: "SWITCH" | "PROTECT_RIM" | null;
+}
+
+/** V8: each team's standing tactic. */
+export interface Tactics {
+  home: TeamTactic;
+  away: TeamTactic;
+}
+
+/** No call yet: V6's defaults. */
+export const NO_TACTICS: Tactics = {
+  home: { offense: null, defense: null },
+  away: { offense: null, defense: null },
+};
+
+/** The rules that consult officials only when something happens (V3-V7). */
 export type ConditionalOfficiatingRules =
   | typeof RULES_V3
   | typeof RULES_V4
   | typeof RULES_V5
-  | typeof RULES_V6;
+  | typeof RULES_V6
+  | typeof RULES_V7
+  | typeof RULES_V8
+  | typeof RULES_V9;
 
 export function isConditionalOfficiating(
   version: string | undefined,
@@ -96,13 +146,52 @@ export function isConditionalOfficiating(
     version === RULES_V3 ||
     version === RULES_V4 ||
     version === RULES_V5 ||
-    version === RULES_V6
+    version === RULES_V6 ||
+    version === RULES_V7 ||
+    version === RULES_V8 ||
+    version === RULES_V9
   );
 }
 
-/** The rules that auto-play decisions careers signed as fallbacks (V4-V6). */
+/** The rules that auto-play decisions careers signed as fallbacks (V4-V8). */
 export function autoPlaysFallbacks(version: string | undefined): boolean {
-  return version === RULES_V4 || version === RULES_V5 || version === RULES_V6;
+  return (
+    version === RULES_V4 ||
+    version === RULES_V5 ||
+    version === RULES_V6 ||
+    version === RULES_V7 ||
+    version === RULES_V8 ||
+    version === RULES_V9
+  );
+}
+
+/**
+ * The rules under which each player's own attributes decide the chances
+ * and decisions are graded (V6's mechanics: V6, V7 and V8).
+ */
+export function playsAttributes(
+  version: string | undefined,
+): version is
+  | typeof RULES_V6
+  | typeof RULES_V7
+  | typeof RULES_V8
+  | typeof RULES_V9 {
+  return (
+    version === RULES_V6 ||
+    version === RULES_V7 ||
+    version === RULES_V8 ||
+    version === RULES_V9
+  );
+}
+
+/** The rules whose coaches' instructions shape their players' defaults (V8). */
+export function playsCoaching(version: string | undefined): boolean {
+  return version === RULES_V8 || version === RULES_V9;
+}
+
+/** The rules whose players are shown the factual view (V7). */
+export function showsFactualView(version: string | undefined): boolean {
+  return version === RULES_V7 || version === RULES_V9;
 }
 
 /**
@@ -127,7 +216,10 @@ export interface PossessionRules {
     | typeof RULES_V3
     | typeof RULES_V4
     | typeof RULES_V5
-    | typeof RULES_V6;
+    | typeof RULES_V6
+    | typeof RULES_V7
+    | typeof RULES_V8
+    | typeof RULES_V9;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
@@ -153,6 +245,8 @@ export interface PossessionRules {
    * commitments, which its film publishes as a LEDGER event.
    */
   ledger?: LedgerCommitmentsState;
+  /** V8 only: each team's standing tactic (its coach's last calls). */
+  tactics?: Tactics;
 }
 
 /** V6: what a game's first possession publishes about its development. */
@@ -231,13 +325,42 @@ const PossessionRulesV5Schema = z.strictObject({
 });
 
 /** V6 adds the players' attributes, their composure and a rhythm catch. */
-const PossessionRulesV6Schema = z.strictObject({
-  version: z.literal(RULES_V6),
+const attributeRulesFields = {
   ...conditionalOfficiatingFields,
   attributes: z.record(z.string().min(1).max(100), PlayerAttributesSchema),
   composure: z.record(z.string().min(1).max(100), ComposureRecordSchema),
   rhythm: z.boolean(),
   ledger: LedgerCommitmentsStateSchema.exactOptional(),
+} as const;
+
+const PossessionRulesV6Schema = z.strictObject({
+  version: z.literal(RULES_V6),
+  ...attributeRulesFields,
+});
+
+/** V7 keeps exactly V6's possession state; only its version differs. */
+const PossessionRulesV7Schema = z.strictObject({
+  version: z.literal(RULES_V7),
+  ...attributeRulesFields,
+});
+
+const TeamTacticSchema = z.strictObject({
+  offense: z.enum(["PACE", "SPACE"]).nullable(),
+  defense: z.enum(["SWITCH", "PROTECT_RIM"]).nullable(),
+}) satisfies z.ZodType<TeamTactic>;
+
+/** V8 adds each team's standing tactic to V6's state. */
+const PossessionRulesV8Schema = z.strictObject({
+  version: z.literal(RULES_V8),
+  ...attributeRulesFields,
+  tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
+});
+
+/** V9 keeps exactly V8's possession state; only its version differs. */
+const PossessionRulesV9Schema = z.strictObject({
+  version: z.literal(RULES_V9),
+  ...attributeRulesFields,
+  tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
 });
 
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
@@ -246,6 +369,9 @@ export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV4Schema,
   PossessionRulesV5Schema,
   PossessionRulesV6Schema,
+  PossessionRulesV7Schema,
+  PossessionRulesV8Schema,
+  PossessionRulesV9Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -481,14 +607,17 @@ const PlayerSituationViewSchema = z.strictObject({
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
-  /** Teamwork rules (V2-V6) only: the situation first, then the original fields. */
+  /** Teamwork rules (V2-V7) only: the situation first, then the original fields. */
   format?: "ABL-PLAYER-OBSERVATION-V2";
   rules?:
     | typeof RULES_V2
     | typeof RULES_V3
     | typeof RULES_V4
     | typeof RULES_V5
-    | typeof RULES_V6;
+    | typeof RULES_V6
+    | typeof RULES_V7
+    | typeof RULES_V8
+    | typeof RULES_V9;
   situation?: PlayerSituationView;
   /** V6 only: your own attributes, as 0-100 ratings in whole points. */
   ratings?: Record<keyof PlayerAttributes, number>;
@@ -519,7 +648,16 @@ export interface PlayerObservation {
 export const PlayerObservationSchema = z.strictObject({
   format: z.literal("ABL-PLAYER-OBSERVATION-V2").exactOptional(),
   rules: z
-    .enum([RULES_V2, RULES_V3, RULES_V4, RULES_V5, RULES_V6])
+    .enum([
+      RULES_V2,
+      RULES_V3,
+      RULES_V4,
+      RULES_V5,
+      RULES_V6,
+      RULES_V7,
+      RULES_V8,
+      RULES_V9,
+    ])
     .exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
   ratings: z
@@ -547,8 +685,10 @@ export const PlayerObservationSchema = z.strictObject({
     })
     .exactOptional(),
   // V3 has 11 rules and V4 12; V5 adds one on expected points, and V6
-  // three on attributes, reads and composure.
-  rulesSummary: z.array(z.string().min(1).max(400)).max(16).exactOptional(),
+  // three on attributes, reads and composure; V7 drops the one on
+  // expected points.
+  // V8 adds one on coaching.
+  rulesSummary: z.array(z.string().min(1).max(400)).max(17).exactOptional(),
   observationId: z.string().min(1).max(300),
   playerId: z.string().min(1).max(100),
   team: TeamSchema,
