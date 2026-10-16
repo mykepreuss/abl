@@ -4,9 +4,9 @@
   "ablReleaseCommit": "e6675d491045c3d8965f1a6a0eebc149ba759627",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://0ddc380e34342a9cd3f6798efaf32d68.us-was-1.preview.bl.run",
-    "arena": "https://4436fe9853476c90a82fe33c6f793fc6.us-was-1.preview.bl.run",
-    "candidateIntake": "https://e2886020f33b7704702f514171de8b92.us-was-1.preview.bl.run"
+    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
+    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
+    "candidateIntake": "https://e5a7872ad14c99c108e6b06f19ca4775.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -295,6 +295,6 @@
     }
   ],
   "privateDeploymentDigest": "0x83e2dbbc184eaf771a9361f07abb5adaa27fb97b0b0592d06c4c3eadf18447aa",
-  "createdAt": "2026-10-15T23:34:39.029Z",
+  "createdAt": "2026-10-16T00:35:54.568Z",
   "compatibilityVersion": "3.0.0"
 }
