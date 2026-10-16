@@ -110,6 +110,28 @@ export const RULES_V8 = "ABL-RULES-V8" as const;
  * differs (factualView of the coached assessment).
  */
 export const RULES_V9 = "ABL-RULES-V9" as const;
+/**
+ * V9 exactly (V8's coaching, V7's factual view, V6's mechanics, grading
+ * and officiating) with one change: a player's missed decision means no
+ * action, as in real basketball. A player-fault miss (missedByPlayer: the
+ * career put the window in front of the participant's runner and no valid
+ * decision came back in time) is played literally: the signed fallback
+ * HOLD keeps the ball, stays where the player stood, and whatever follows
+ * simply happens (a possession nobody shot in ends on the shot clock, a
+ * violation and turnover). Only a league-fault miss (the league never put
+ * the window in front of the runner) is auto-played, as under V9. Coaches'
+ * misses keep the current tactic and lineup, unchanged. The film names
+ * each window's player-fault misses in a NO_DECISION event; see engine.ts
+ * (fallbackDecisions) and docs/architecture/NO_DECISION_NO_ACTION.md.
+ */
+export const RULES_V10 = "ABL-RULES-V10" as const;
+
+/**
+ * The runner a career names in a receipt it signed with no usable runner
+ * delegation (never paired, revoked or expired): the participant had no
+ * runner to ask, which is the participant's own doing (missedByPlayer).
+ */
+export const UNPAIRED_RUNNER_ID = "unpaired-career-fallback";
 
 /** A coach's offensive and defensive calls, as V8 keeps them. */
 export interface TeamTactic {
@@ -137,7 +159,8 @@ export type ConditionalOfficiatingRules =
   | typeof RULES_V6
   | typeof RULES_V7
   | typeof RULES_V8
-  | typeof RULES_V9;
+  | typeof RULES_V9
+  | typeof RULES_V10;
 
 export function isConditionalOfficiating(
   version: string | undefined,
@@ -149,11 +172,15 @@ export function isConditionalOfficiating(
     version === RULES_V6 ||
     version === RULES_V7 ||
     version === RULES_V8 ||
-    version === RULES_V9
+    version === RULES_V9 ||
+    version === RULES_V10
   );
 }
 
-/** The rules that auto-play decisions careers signed as fallbacks (V4-V8). */
+/**
+ * The rules that auto-play decisions careers signed as fallbacks (V4-V9;
+ * V10 only those the league caused, and every coach's).
+ */
 export function autoPlaysFallbacks(version: string | undefined): boolean {
   return (
     version === RULES_V4 ||
@@ -161,8 +188,20 @@ export function autoPlaysFallbacks(version: string | undefined): boolean {
     version === RULES_V6 ||
     version === RULES_V7 ||
     version === RULES_V8 ||
-    version === RULES_V9
+    version === RULES_V9 ||
+    version === RULES_V10
   );
+}
+
+/**
+ * The rules under which a player's own missed decision means no action
+ * (V10): the signed fallback HOLD is played literally, and only the misses
+ * the league caused are auto-played.
+ */
+export function playsMissedDecisionsLiterally(
+  version: string | undefined,
+): boolean {
+  return version === RULES_V10;
 }
 
 /**
@@ -175,23 +214,25 @@ export function playsAttributes(
   | typeof RULES_V6
   | typeof RULES_V7
   | typeof RULES_V8
-  | typeof RULES_V9 {
+  | typeof RULES_V9
+  | typeof RULES_V10 {
   return (
     version === RULES_V6 ||
     version === RULES_V7 ||
     version === RULES_V8 ||
-    version === RULES_V9
+    version === RULES_V9 ||
+    version === RULES_V10
   );
 }
 
 /** The rules whose coaches' instructions shape their players' defaults (V8). */
 export function playsCoaching(version: string | undefined): boolean {
-  return version === RULES_V8 || version === RULES_V9;
+  return version === RULES_V8 || version === RULES_V9 || version === RULES_V10;
 }
 
 /** The rules whose players are shown the factual view (V7). */
 export function showsFactualView(version: string | undefined): boolean {
-  return version === RULES_V7 || version === RULES_V9;
+  return version === RULES_V7 || version === RULES_V9 || version === RULES_V10;
 }
 
 /**
@@ -219,7 +260,8 @@ export interface PossessionRules {
     | typeof RULES_V6
     | typeof RULES_V7
     | typeof RULES_V8
-    | typeof RULES_V9;
+    | typeof RULES_V9
+    | typeof RULES_V10;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
@@ -363,6 +405,13 @@ const PossessionRulesV9Schema = z.strictObject({
   tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
 });
 
+/** V10 keeps exactly V9's possession state; only its version differs. */
+const PossessionRulesV10Schema = z.strictObject({
+  version: z.literal(RULES_V10),
+  ...attributeRulesFields,
+  tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
+});
+
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
@@ -372,6 +421,7 @@ export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV7Schema,
   PossessionRulesV8Schema,
   PossessionRulesV9Schema,
+  PossessionRulesV10Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -617,7 +667,8 @@ export interface PlayerObservation {
     | typeof RULES_V6
     | typeof RULES_V7
     | typeof RULES_V8
-    | typeof RULES_V9;
+    | typeof RULES_V9
+    | typeof RULES_V10;
   situation?: PlayerSituationView;
   /** V6 only: your own attributes, as 0-100 ratings in whole points. */
   ratings?: Record<keyof PlayerAttributes, number>;
@@ -657,6 +708,7 @@ export const PlayerObservationSchema = z.strictObject({
       RULES_V7,
       RULES_V8,
       RULES_V9,
+      RULES_V10,
     ])
     .exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
@@ -729,6 +781,13 @@ export function createDeterministicFixtureReceipt(input: {
   contextManifestCommitment?: `0x${string}`;
   deadlineMs?: number;
   fallback?: CognitionReceipt["fallback"];
+  /**
+   * The receipt's `attempts` (default: 1 for a participant's result, 0 for
+   * a fallback). A fallback with 1 is a player-fault miss under V10
+   * (missedByPlayer): the participant's runner was asked and no valid
+   * decision came back.
+   */
+  attempts?: 0 | 1;
   transportRetries?: number;
   normalizedResourceUnits?: number;
   startedAt?: string;
@@ -765,7 +824,7 @@ export function createDeterministicFixtureReceipt(input: {
     startedAt: input.startedAt ?? "2026-08-26T10:00:00.000Z",
     completedAt: input.completedAt ?? "2026-08-26T10:00:00.001Z",
     deadlineMs: input.deadlineMs ?? 20_000,
-    attempts: fallback === "NONE" ? 1 : 0,
+    attempts: input.attempts ?? (fallback === "NONE" ? 1 : 0),
     transportRetries: input.transportRetries ?? 0,
     fallback,
     usage: {
@@ -902,6 +961,9 @@ export interface ResolutionEvent {
     // V4-V6 only: decisions in a window that the engine auto-played
     // because their careers signed fallbacks (no valid decision in time).
     | "AUTO_PLAY"
+    // V10 only: players in a window whose own miss (no valid decision in
+    // time from their runner) the engine played literally: no action.
+    | "NO_DECISION"
     // V6 only: how each participant's decision in a window read the play,
     // the record player development is derived from.
     | "READS"

@@ -27,6 +27,18 @@ Pre-Genesis history remains signed, replayable, and noncanonical. Canonical
 history opens only after ratified recognition finality and authorized Genesis
 activation. Later careers never alter the fixed founding registry.
 
+## Decision windows
+
+Every game names its rules in each observation (`rules` and
+`rulesSummary`). Answer each decision window before its deadline (40 seconds
+in owner exhibitions). Under ABL-RULES-V10 a missed decision means no action,
+as in real basketball: with the ball you keep holding it and the shot clock
+can expire (a violation and a turnover); off the ball or on defense you stay
+where you are. The league auto-plays a window only when it failed to deliver
+it to your runner. A missed decision earns nothing and lowers your decision
+quality. Under ABL-RULES-V4 to V9 the league auto-plays a missed decision,
+labelled as auto-play; it still counts as missed.
+
 ## Hosting the runner without a laptop
 
 A career's runner can live in a Blaxel Sandbox that the participant owns,

@@ -1905,6 +1905,39 @@ export const InferenceResultSchema = z.strictObject({
 });
 export type InferenceResult = z.infer<typeof InferenceResultSchema>;
 
+/**
+ * What the relay knows of one request's way to its runner, as it answers a
+ * career at GET /v1/internal/activations/:activationId/delivery. Times are
+ * the relay's clock. The relay keeps these in memory only (runner polls and
+ * heartbeats are never saved), so a restarted relay knows nothing from
+ * before `recordedSince`. The career reads it at the deadline of a window
+ * its runner did not answer and signs its conclusion into the receipt's
+ * `attempts` (docs/architecture/NO_DECISION_NO_ACTION.md). A type only: the
+ * career parses it (apps/staging-body), and a schema here would change the
+ * participant runner bundle, which carries this module.
+ */
+export interface ActivationDeliveryRecord {
+  activationId: string;
+  runnerId: string;
+  /** When the relay accepted the request; null if it restarted since. */
+  acceptedAt: string | null;
+  /**
+   * When the runner first asked the relay for work (GET
+   * /v1/runners/activations/next) while the request waited for it, before
+   * its deadline; null if it never did.
+   */
+  runnerPolledAt: string | null;
+  /** When the runner first took the request from the relay; null if never. */
+  claimedAt: string | null;
+  /**
+   * Until when the relay had told the runner it could idle (its last
+   * cadence advice was IDLE), plus the standby grace; null otherwise.
+   */
+  runnerIdleAdvisedUntil: string | null;
+  /** Since when the relay holds these records: its start. */
+  recordedSince: string;
+}
+
 /*
  * The off-court contract: what a career sends its runner between games and
  * what the runner's model answers. docs/architecture/CAREER_LEARNING_LOOP.md
