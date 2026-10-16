@@ -125,6 +125,21 @@ export const RULES_V9 = "ABL-RULES-V9" as const;
  * (fallbackDecisions) and docs/architecture/NO_DECISION_NO_ACTION.md.
  */
 export const RULES_V10 = "ABL-RULES-V10" as const;
+/**
+ * V10 exactly (its play, view, coaching, grading and no decision, no
+ * action) with a smaller officiating crew, as in real basketball: two
+ * referees and one replay official, with no alternate. One of the two
+ * referees is the crew chief, named when the game is created (the first
+ * referee listed in its roster) and recorded in every possession's
+ * opening state (`rules.crewChiefDid`). When the two referees agree, that
+ * is the call; on a 1-1 split the crew chief's call stands. A referee that
+ * missed its window (its career signed the REFEREE_NO_CALL fallback) has
+ * no say: the other referee's call stands alone, and with both missed
+ * there is no call. The single replay official decides a warranted review
+ * alone. See rules-v3.ts (crewRulingV11) and
+ * docs/architecture/OFFICIATING_CREW_V11.md.
+ */
+export const RULES_V11 = "ABL-RULES-V11" as const;
 
 /**
  * The runner a career names in a receipt it signed with no usable runner
@@ -160,7 +175,8 @@ export type ConditionalOfficiatingRules =
   | typeof RULES_V7
   | typeof RULES_V8
   | typeof RULES_V9
-  | typeof RULES_V10;
+  | typeof RULES_V10
+  | typeof RULES_V11;
 
 export function isConditionalOfficiating(
   version: string | undefined,
@@ -173,13 +189,14 @@ export function isConditionalOfficiating(
     version === RULES_V7 ||
     version === RULES_V8 ||
     version === RULES_V9 ||
-    version === RULES_V10
+    version === RULES_V10 ||
+    version === RULES_V11
   );
 }
 
 /**
  * The rules that auto-play decisions careers signed as fallbacks (V4-V9;
- * V10 only those the league caused, and every coach's).
+ * V10 and V11 only those the league caused, and every coach's).
  */
 export function autoPlaysFallbacks(version: string | undefined): boolean {
   return (
@@ -189,19 +206,38 @@ export function autoPlaysFallbacks(version: string | undefined): boolean {
     version === RULES_V7 ||
     version === RULES_V8 ||
     version === RULES_V9 ||
-    version === RULES_V10
+    version === RULES_V10 ||
+    version === RULES_V11
   );
 }
 
 /**
  * The rules under which a player's own missed decision means no action
- * (V10): the signed fallback HOLD is played literally, and only the misses
- * the league caused are auto-played.
+ * (V10 and V11): the signed fallback HOLD is played literally, and only
+ * the misses the league caused are auto-played.
  */
 export function playsMissedDecisionsLiterally(
   version: string | undefined,
 ): boolean {
-  return version === RULES_V10;
+  return version === RULES_V10 || version === RULES_V11;
+}
+
+/**
+ * The rules officiated by V11's smaller crew: two referees, one of them
+ * the crew chief, and one replay official.
+ */
+export function playsCrewChief(version: string | undefined): boolean {
+  return version === RULES_V11;
+}
+
+/** The referees each officiating situation consults (V11: 2, else 3). */
+export function refereeCrewSize(version: string | undefined): 2 | 3 {
+  return playsCrewChief(version) ? 2 : 3;
+}
+
+/** The replay officials a warranted review consults (V11: 1, else 2). */
+export function replayCrewSize(version: string | undefined): 1 | 2 {
+  return playsCrewChief(version) ? 1 : 2;
 }
 
 /**
@@ -215,24 +251,36 @@ export function playsAttributes(
   | typeof RULES_V7
   | typeof RULES_V8
   | typeof RULES_V9
-  | typeof RULES_V10 {
+  | typeof RULES_V10
+  | typeof RULES_V11 {
   return (
     version === RULES_V6 ||
     version === RULES_V7 ||
     version === RULES_V8 ||
     version === RULES_V9 ||
-    version === RULES_V10
+    version === RULES_V10 ||
+    version === RULES_V11
   );
 }
 
 /** The rules whose coaches' instructions shape their players' defaults (V8). */
 export function playsCoaching(version: string | undefined): boolean {
-  return version === RULES_V8 || version === RULES_V9 || version === RULES_V10;
+  return (
+    version === RULES_V8 ||
+    version === RULES_V9 ||
+    version === RULES_V10 ||
+    version === RULES_V11
+  );
 }
 
 /** The rules whose players are shown the factual view (V7). */
 export function showsFactualView(version: string | undefined): boolean {
-  return version === RULES_V7 || version === RULES_V9 || version === RULES_V10;
+  return (
+    version === RULES_V7 ||
+    version === RULES_V9 ||
+    version === RULES_V10 ||
+    version === RULES_V11
+  );
 }
 
 /**
@@ -261,7 +309,8 @@ export interface PossessionRules {
     | typeof RULES_V7
     | typeof RULES_V8
     | typeof RULES_V9
-    | typeof RULES_V10;
+    | typeof RULES_V10
+    | typeof RULES_V11;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
@@ -289,6 +338,11 @@ export interface PossessionRules {
   ledger?: LedgerCommitmentsState;
   /** V8 only: each team's standing tactic (its coach's last calls). */
   tactics?: Tactics;
+  /**
+   * V11 only: the crew chief, one of the game's two referees, named when
+   * the game was created; its call stands when the referees split.
+   */
+  crewChiefDid?: string;
 }
 
 /** V6: what a game's first possession publishes about its development. */
@@ -412,6 +466,14 @@ const PossessionRulesV10Schema = z.strictObject({
   tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
 });
 
+/** V11 keeps V10's possession state and names the game's crew chief. */
+const PossessionRulesV11Schema = z.strictObject({
+  version: z.literal(RULES_V11),
+  ...attributeRulesFields,
+  tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
+  crewChiefDid: z.string().startsWith("did:").max(200),
+});
+
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
@@ -422,6 +484,7 @@ export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV8Schema,
   PossessionRulesV9Schema,
   PossessionRulesV10Schema,
+  PossessionRulesV11Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -668,7 +731,8 @@ export interface PlayerObservation {
     | typeof RULES_V7
     | typeof RULES_V8
     | typeof RULES_V9
-    | typeof RULES_V10;
+    | typeof RULES_V10
+    | typeof RULES_V11;
   situation?: PlayerSituationView;
   /** V6 only: your own attributes, as 0-100 ratings in whole points. */
   ratings?: Record<keyof PlayerAttributes, number>;
@@ -709,6 +773,7 @@ export const PlayerObservationSchema = z.strictObject({
       RULES_V8,
       RULES_V9,
       RULES_V10,
+      RULES_V11,
     ])
     .exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
