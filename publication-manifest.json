@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "0f70eb8b265a58e5ff4f3b7be7c2f921b6041de8",
+  "ablReleaseCommit": "05cb44146ab3dfaad9ba81c342c6cd011a2b182c",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
-    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
+    "publicApi": "https://f3a4685cc8a01f992148e487744e6843.us-was-1.preview.bl.run",
+    "arena": "https://a20a201cd8d1c05e99fd0d16bab59ba9.us-was-1.preview.bl.run",
+    "candidateIntake": "https://b4a5be8318e58378900aa49ae066fc27.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -77,9 +77,9 @@
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
-      "bytes": 1212610,
+      "bytes": 1217431,
       "mediaType": "text/javascript",
-      "sha256": "0x444caca4b062ca522aaeba5242e2fbe6b470346a43702afdedcd784d196a9797"
+      "sha256": "0x6617ec0852339ae646f71a447aa7da080b8dc501765529319192e5accbabcc4b"
     },
     {
       "path": "skills/abl-league/dist/manifest.json",
@@ -91,7 +91,7 @@
       "path": "skills/abl-league/dist/runner-manifest.json",
       "bytes": 263,
       "mediaType": "application/json",
-      "sha256": "0x625c0cd8f4312d3a35173b267c52a49dc3e6c66501e4a4fcace629b70dd94e57"
+      "sha256": "0x80ef905e17aa04d46e6a78b7ab57f6f7d260c3b45123376aef6a5a44d268bfd4"
     },
     {
       "path": "skills/abl-league/references/founding-join.md",
@@ -266,8 +266,8 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b45e96b1737e3fc878b49",
-      "buildContextSha256": "0xe740df027cc0cb321ac609af2c160c76feac15ff9d5981b2318c2d27b967c0ce"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bd64c56739ebf38645eb4",
+      "buildContextSha256": "0xf9fd0bfb58c1d9dd9abfd965b2ab745fce6dd7f708cbb093aea7f7056b9fef45"
     },
     {
       "name": "arena",
@@ -294,7 +294,7 @@
       "buildContextSha256": "0x8adcdb4a7c1aa760c66015a622558cf5856b67b1190a04e29252dc1ddee24bad"
     }
   ],
-  "privateDeploymentDigest": "0x4d8783adb3639a46ee0f6e89ee543bfc141c936adb3692d201e0d988468b4863",
-  "createdAt": "2026-10-16T14:28:12.457Z",
+  "privateDeploymentDigest": "0x2e418ac03a3562a0713eb4d6c6e2e22f6bf44beb70b9025e1c341f41c82b3464",
+  "createdAt": "2026-10-16T15:15:26.569Z",
   "compatibilityVersion": "3.0.0"
 }
