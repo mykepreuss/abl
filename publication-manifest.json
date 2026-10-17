@@ -1,7 +1,7 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "76e1497b6b78622a96c6b3ce8a05d1090f35c157",
+  "ablReleaseCommit": "c38284464265246161797984ee751cce641f2862",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
     "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
@@ -284,8 +284,8 @@
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:bebd8beb5b027573e67e9",
-      "buildContextSha256": "0xec94312ec58dcc9bf4a0558c4929496410270cf1c5ad3f6a86499ec33d9fa9b7"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:bb969fec69d50256546be",
+      "buildContextSha256": "0x3e2783eab3da8794061139e47e848a440245adf1d22649bdc4aa4e7e9de218b7"
     },
     {
       "name": "broker",
@@ -294,7 +294,7 @@
       "buildContextSha256": "0xadc3d70fd8a1327f60bb1985518dbc1f5a22e40be927028ca6238788b4d13dfb"
     }
   ],
-  "privateDeploymentDigest": "0xf851f1f20711b5b202f48d7105d2bc60ea13e680c9780ec55bf122b8ab1ea1b0",
-  "createdAt": "2026-10-17T08:40:24.243Z",
+  "privateDeploymentDigest": "0xb4bff853a442175d811832903eb3317eb433b5a7db74cd9d08e0c093806469fa",
+  "createdAt": "2026-10-17T13:31:00.556Z",
   "compatibilityVersion": "3.0.0"
 }
