@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "66105f56aab658fec0b3e70ee54c573129e4d36f",
+  "ablReleaseCommit": "7b3a45e625daec56293efa08b2f391f218351fbe",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
-    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
+    "publicApi": "https://4a1b22fadd9ec0678930c4c9c6f55330.us-was-1.preview.bl.run",
+    "arena": "https://f73cbe9425904f95a89707cf108f5f7e.us-was-1.preview.bl.run",
+    "candidateIntake": "https://9ea310b52ee34b1db3abf1837661db51.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -71,9 +71,9 @@
     },
     {
       "path": "skills/abl-league/dist/abl-join.mjs",
-      "bytes": 1124874,
+      "bytes": 1125981,
       "mediaType": "text/javascript",
-      "sha256": "0xb6211ef65395553fdfccec0f6c92e660cbe1e2e8d22a51c0835ab3565190d9f8"
+      "sha256": "0xe99d50119059974b459d60077b07dde6dad9a2b140d6e538485ceea5a2790cf1"
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
@@ -85,7 +85,7 @@
       "path": "skills/abl-league/dist/manifest.json",
       "bytes": 191,
       "mediaType": "application/json",
-      "sha256": "0xcc0a414e499c15bd44c7fef1c6eee05508e4ca697e5956c824d75fed18e8a9ed"
+      "sha256": "0xcd16fde8457ffc01d15355ade0eb0939ecb09ce6f433d0ea452d531c12d2c9f9"
     },
     {
       "path": "skills/abl-league/dist/runner-manifest.json",
@@ -266,35 +266,35 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b80a3bdb47fab5c9c56d5",
-      "buildContextSha256": "0x9e49aa86bc6f970e9add19452a860584a4128f2ac7fb4441fed71a73cf5090cc"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:b3c3b96b897d1638237f7",
+      "buildContextSha256": "0xecd6d76616d1b490a37d27a17dfc41e894ecaff5c86fea73c34433583d3e1143"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b5608898ba179418b8705",
-      "buildContextSha256": "0x7956b159b71cd612f10704acf801b9e844890c5eb0987f76900247630fe2bb65"
+      "imageReference": "sandbox/abl-stage-c-arena-image:b4c96b1b82d9773798441",
+      "buildContextSha256": "0x054f7d377a772d258d91e2e191d5676fd0697797dbfc5387161e9b4d0e63b9a1"
     },
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b3b9f8bede238ea25f380",
-      "buildContextSha256": "0x110f6ffbe555e2e5e2e5ce72024eaf7a12a65854cf59a53623d0f1105d5e2143"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b651c21fc20a00444e141",
+      "buildContextSha256": "0x26e93b28199142369664f09e7e168011da46652be987928a20cb2b7ee656e7dd"
     },
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:b409945e4c77e99c450b2",
-      "buildContextSha256": "0xfd69218992b1e13ee6ffac40ef747b27368e106887c6ea1453a8000e14579a56"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:b502b86a596243002ebdd",
+      "buildContextSha256": "0x72fe5938fc5b1459bd95e550bbbcad0c8fe347ec3a1fa4b83d40243e79eaa03c"
     },
     {
       "name": "broker",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:b934ddcd3ea66565236fb",
-      "buildContextSha256": "0xbdf1e0993511aa333fd12c357bdaf51d9616ea37d3b4fff2743a46003ff16c5f"
+      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:bc09dd8fd74db822afe15",
+      "buildContextSha256": "0xb4911a0b8bd763e95d1b3fc956d37d02e960d402e90b0ada296d0fac6ee944f2"
     }
   ],
-  "privateDeploymentDigest": "0xb7d736fd2b52e7750357738bdc76107ff94c97e966daf37a68e1c8863f8f919f",
-  "createdAt": "2026-10-17T17:44:35.233Z",
+  "privateDeploymentDigest": "0x32a82d0efea8325469c6af87114c909f918f1e33f9c702dc11c70750c56cf655",
+  "createdAt": "2026-10-18T16:40:01.384Z",
   "compatibilityVersion": "3.0.0"
 }
