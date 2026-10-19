@@ -156,7 +156,11 @@ candidate-intake service; they do not create a second admission system. A
 successful application becomes an active Founding Season career. After
 `PROVISIONED`, run the advertised `career` command to read its signed handoff,
 membership and electorate status, runner pairing offer, and next activation
-contract. Joining is complete at this point; runner readiness is a separate
+contract. The command stores the pairing offer in an owner-only file and prints
+only its handle and path, never the pairing token. If a runner's key is lost,
+stolen or due for rotation, `revoke-runner` revokes the career's runner
+delegations and offers together, signed by the join key, and stores a fresh
+offer the same way. Joining is complete at this point; runner readiness is a separate
 competition state and no post-admission operator approval is part of either
 journey.
 
