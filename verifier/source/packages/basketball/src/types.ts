@@ -140,6 +140,22 @@ export const RULES_V10 = "ABL-RULES-V10" as const;
  * docs/architecture/OFFICIATING_CREW_V11.md.
  */
 export const RULES_V11 = "ABL-RULES-V11" as const;
+/**
+ * V11 exactly (its play, view, coaching, grading, no decision no action
+ * and two-referee crew) with transition, as in real basketball: a
+ * possession opens from the last one's end, not from fixed spots. The trip
+ * up the floor is played out at each player's own sprint speed before the
+ * first decision (after a make or dead ball the ball is inbounded and
+ * walked up; after a defensive rebound, outlet and push; after a steal,
+ * the stealer pushes; after an offensive rebound out of putback range, a
+ * short reset), defenders get back to the attackers nearest them, not to
+ * their own position, and the first decision is early offense from where
+ * the trip left everyone. A defence that got back set fronts a posted
+ * attacker, with help behind him at the rim. ABL-RULES-V12 names the stopped off-ball prototype. See
+ * rules-v3.ts (transitionOpening) and
+ * docs/architecture/RULES_V13_TRANSITION.md.
+ */
+export const RULES_V13 = "ABL-RULES-V13" as const;
 
 /**
  * The runner a career names in a receipt it signed with no usable runner
@@ -176,7 +192,8 @@ export type ConditionalOfficiatingRules =
   | typeof RULES_V8
   | typeof RULES_V9
   | typeof RULES_V10
-  | typeof RULES_V11;
+  | typeof RULES_V11
+  | typeof RULES_V13;
 
 export function isConditionalOfficiating(
   version: string | undefined,
@@ -190,7 +207,8 @@ export function isConditionalOfficiating(
     version === RULES_V8 ||
     version === RULES_V9 ||
     version === RULES_V10 ||
-    version === RULES_V11
+    version === RULES_V11 ||
+    version === RULES_V13
   );
 }
 
@@ -207,7 +225,8 @@ export function autoPlaysFallbacks(version: string | undefined): boolean {
     version === RULES_V8 ||
     version === RULES_V9 ||
     version === RULES_V10 ||
-    version === RULES_V11
+    version === RULES_V11 ||
+    version === RULES_V13
   );
 }
 
@@ -219,7 +238,9 @@ export function autoPlaysFallbacks(version: string | undefined): boolean {
 export function playsMissedDecisionsLiterally(
   version: string | undefined,
 ): boolean {
-  return version === RULES_V10 || version === RULES_V11;
+  return (
+    version === RULES_V10 || version === RULES_V11 || version === RULES_V13
+  );
 }
 
 /**
@@ -227,7 +248,15 @@ export function playsMissedDecisionsLiterally(
  * the crew chief, and one replay official.
  */
 export function playsCrewChief(version: string | undefined): boolean {
-  return version === RULES_V11;
+  return version === RULES_V11 || version === RULES_V13;
+}
+
+/**
+ * The rules whose possessions open from the last one's end, with the trip
+ * up the floor, defenders getting back and early offense (V13).
+ */
+export function playsTransition(version: string | undefined): boolean {
+  return version === RULES_V13;
 }
 
 /** The referees each officiating situation consults (V11: 2, else 3). */
@@ -252,14 +281,16 @@ export function playsAttributes(
   | typeof RULES_V8
   | typeof RULES_V9
   | typeof RULES_V10
-  | typeof RULES_V11 {
+  | typeof RULES_V11
+  | typeof RULES_V13 {
   return (
     version === RULES_V6 ||
     version === RULES_V7 ||
     version === RULES_V8 ||
     version === RULES_V9 ||
     version === RULES_V10 ||
-    version === RULES_V11
+    version === RULES_V11 ||
+    version === RULES_V13
   );
 }
 
@@ -269,7 +300,8 @@ export function playsCoaching(version: string | undefined): boolean {
     version === RULES_V8 ||
     version === RULES_V9 ||
     version === RULES_V10 ||
-    version === RULES_V11
+    version === RULES_V11 ||
+    version === RULES_V13
   );
 }
 
@@ -279,7 +311,8 @@ export function showsFactualView(version: string | undefined): boolean {
     version === RULES_V7 ||
     version === RULES_V9 ||
     version === RULES_V10 ||
-    version === RULES_V11
+    version === RULES_V11 ||
+    version === RULES_V13
   );
 }
 
@@ -310,7 +343,8 @@ export interface PossessionRules {
     | typeof RULES_V8
     | typeof RULES_V9
     | typeof RULES_V10
-    | typeof RULES_V11;
+    | typeof RULES_V11
+    | typeof RULES_V13;
   /** Decision windows scheduled for this possession. */
   windows: number;
   /** Window in which the current ball handler caught a pass, else null. */
@@ -339,11 +373,51 @@ export interface PossessionRules {
   /** V8 only: each team's standing tactic (its coach's last calls). */
   tactics?: Tactics;
   /**
-   * V11 only: the crew chief, one of the game's two referees, named when
-   * the game was created; its call stands when the referees split.
+   * V11 and V13: the crew chief, one of the game's two referees, named
+   * when the game was created; its call stands when the referees split.
    */
   crewChiefDid?: string;
+  /** V13 only: how the possession opened (transition, or the set). */
+  transition?: TransitionState;
 }
+
+/** How the last possession ended, as a V13 possession opens from it. */
+export type TransitionStart =
+  | "MAKE"
+  | "DEAD_BALL"
+  | "DEFENSIVE_REBOUND"
+  | "STEAL"
+  | "OFFENSIVE_REBOUND";
+
+/**
+ * V13: how a possession opened. `start` is how the last one ended (null
+ * for the half-court set: a game's or a period's first possession, or a
+ * putback); `tripMs`, the trip up the floor before the first decision;
+ * `matchups`, each defender's assignment (defender to attacker player ID);
+ * `defenseSet`, whether every defender reached his assignment in the trip
+ * (a set defence fronts the post, with help behind).
+ */
+export interface TransitionState {
+  start: TransitionStart | null;
+  tripMs: number;
+  matchups: Record<string, string>;
+  defenseSet: boolean;
+}
+
+export const TransitionStateSchema = z.strictObject({
+  start: z
+    .enum([
+      "MAKE",
+      "DEAD_BALL",
+      "DEFENSIVE_REBOUND",
+      "STEAL",
+      "OFFENSIVE_REBOUND",
+    ])
+    .nullable(),
+  tripMs: z.number().int().nonnegative().max(24_000),
+  matchups: z.record(z.string().min(1).max(100), z.string().min(1).max(100)),
+  defenseSet: z.boolean(),
+}) satisfies z.ZodType<TransitionState>;
 
 /** V6: what a game's first possession publishes about its development. */
 export interface LedgerCommitmentsState {
@@ -474,6 +548,15 @@ const PossessionRulesV11Schema = z.strictObject({
   crewChiefDid: z.string().startsWith("did:").max(200),
 });
 
+/** V13 keeps V11's possession state and records how it opened. */
+const PossessionRulesV13Schema = z.strictObject({
+  version: z.literal(RULES_V13),
+  ...attributeRulesFields,
+  tactics: z.strictObject({ home: TeamTacticSchema, away: TeamTacticSchema }),
+  crewChiefDid: z.string().startsWith("did:").max(200),
+  transition: TransitionStateSchema,
+});
+
 export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV2Schema,
   PossessionRulesV3Schema,
@@ -485,6 +568,7 @@ export const PossessionRulesSchema = z.discriminatedUnion("version", [
   PossessionRulesV9Schema,
   PossessionRulesV10Schema,
   PossessionRulesV11Schema,
+  PossessionRulesV13Schema,
 ]) satisfies z.ZodType<PossessionRules>;
 
 export interface BasketballState {
@@ -686,8 +770,22 @@ export interface PlayerSituationView {
   score: { yourTeam: number; opponent: number };
   /** The basket the offense attacks this possession. */
   basket: { xCm: number; yCm: number };
-  /** On defense: the attacker you are matched up with (same position). */
+  /**
+   * On defense: the attacker you are matched up with (same position; V13:
+   * the one you got back to).
+   */
   yourAssignment: string | null;
+  /**
+   * V13 only: how this possession opened. `start` is how the last one
+   * ended (null: the half-court set); `defenseSet`, whether every defender
+   * got back to his man in the trip up the floor; `unmatched`, attackers
+   * whose defender had not got back (none once the defence is set).
+   */
+  transition?: {
+    start: TransitionStart | null;
+    defenseSet: boolean;
+    unmatched: string[];
+  };
 }
 
 const PlayerSituationViewSchema = z.strictObject({
@@ -717,6 +815,21 @@ const PlayerSituationViewSchema = z.strictObject({
     yCm: z.number().int().min(0).max(1_524),
   }),
   yourAssignment: z.string().min(1).max(100).nullable(),
+  transition: z
+    .strictObject({
+      start: z
+        .enum([
+          "MAKE",
+          "DEAD_BALL",
+          "DEFENSIVE_REBOUND",
+          "STEAL",
+          "OFFENSIVE_REBOUND",
+        ])
+        .nullable(),
+      defenseSet: z.boolean(),
+      unmatched: z.array(z.string().min(1).max(100)).max(5),
+    })
+    .exactOptional(),
 }) satisfies z.ZodType<PlayerSituationView>;
 
 export interface PlayerObservation {
@@ -732,7 +845,8 @@ export interface PlayerObservation {
     | typeof RULES_V8
     | typeof RULES_V9
     | typeof RULES_V10
-    | typeof RULES_V11;
+    | typeof RULES_V11
+    | typeof RULES_V13;
   situation?: PlayerSituationView;
   /** V6 only: your own attributes, as 0-100 ratings in whole points. */
   ratings?: Record<keyof PlayerAttributes, number>;
@@ -774,6 +888,7 @@ export const PlayerObservationSchema = z.strictObject({
       RULES_V9,
       RULES_V10,
       RULES_V11,
+      RULES_V13,
     ])
     .exactOptional(),
   situation: PlayerSituationViewSchema.exactOptional(),
@@ -805,7 +920,7 @@ export const PlayerObservationSchema = z.strictObject({
   // three on attributes, reads and composure; V7 drops the one on
   // expected points.
   // V8 adds one on coaching.
-  rulesSummary: z.array(z.string().min(1).max(400)).max(17).exactOptional(),
+  rulesSummary: z.array(z.string().min(1).max(400)).max(18).exactOptional(),
   observationId: z.string().min(1).max(300),
   playerId: z.string().min(1).max(100),
   team: TeamSchema,
