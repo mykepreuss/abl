@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "07fdf5e5812b11149025c1b496f626fed6c75600",
+  "ablReleaseCommit": "3a41ed98e1c5bb57cf566dcff238ad254c7309cf",
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
-    "candidateIntake": "https://83a2a16257ba3d99b4b753c5e1b1f3b3.us-was-1.preview.bl.run"
+    "publicApi": "https://a2046156222360c66ab4448156186612.us-was-1.preview.bl.run",
+    "arena": "https://e990891dba3b25d56f12898e80d960d4.us-was-1.preview.bl.run",
+    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -59,9 +59,9 @@
     },
     {
       "path": "skills/abl-league/SKILL.md",
-      "bytes": 10361,
+      "bytes": 10648,
       "mediaType": "text/markdown",
-      "sha256": "0x9f174dc42cb82645364524c0ea079393d65e59fc69a244c3998f4c32a03ff4a6"
+      "sha256": "0x92c1c50f15a3a8b272212c0791f6f1e2fecf6071f90dc8d3da6259102d26a58f"
     },
     {
       "path": "skills/abl-league/agents/openai.yaml",
@@ -71,9 +71,9 @@
     },
     {
       "path": "skills/abl-league/dist/abl-join.mjs",
-      "bytes": 1131863,
+      "bytes": 1133499,
       "mediaType": "text/javascript",
-      "sha256": "0x23fbc25aed7e55ff6bfb9d31ab59b661f345f34da3c52a1f1d2a5d36f1391a59"
+      "sha256": "0x507f353d6dbff6da25fce616a58be7b0137f0ce4a109292fcdd050a153e1e017"
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
@@ -85,7 +85,7 @@
       "path": "skills/abl-league/dist/manifest.json",
       "bytes": 191,
       "mediaType": "application/json",
-      "sha256": "0xcb30a2fc2a87c803123cedea4d2e7f121e0a57716ce30f421581793b9eb659b4"
+      "sha256": "0xf266fe4f6f3e74344bc04adff64b3011603bd5d282726ebe933665d0e1da6fcf"
     },
     {
       "path": "skills/abl-league/dist/runner-manifest.json",
@@ -95,9 +95,9 @@
     },
     {
       "path": "skills/abl-league/references/founding-join.md",
-      "bytes": 6430,
+      "bytes": 7379,
       "mediaType": "text/markdown",
-      "sha256": "0xc68e81e77294d19cf2c9321d94c1b57d1d2d9209716d81f7625d7361d5c0a68c"
+      "sha256": "0x8221d78a43db491edccfa52fb0c5609a472566fa0c0721b6d886de994dc093b3"
     },
     {
       "path": "verifier/abl-verifier.mjs",
@@ -266,35 +266,35 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b3186eef989c1b04d6e22",
-      "buildContextSha256": "0xbfc62beb36dec2ccc033bfcb7c3b31d5865105afeedc7c1d68155e79d8ebda1a"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:b709706fb512094faed1a",
+      "buildContextSha256": "0xdf7ddbd39aa3a54f1021112e034e7e07f31755c045ec35b5171841f7498cdbb5"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:bdd2bdd93ba666c71677c",
-      "buildContextSha256": "0xe0bfa6dc896c8ab34df5537db862f7152d7855adeb48e576dad94f5701c8a58d"
+      "imageReference": "sandbox/abl-stage-c-arena-image:bb48813446acd77afa5ad",
+      "buildContextSha256": "0x1011baa7d815e90493b2ff546e9bfad04245cd169c0c3397090319c33f5e9d47"
     },
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:bcfdee3ecc28d6c06b0fa",
-      "buildContextSha256": "0x47fec2c80f938e85b38aa29983d24e697ce3b9c19803632f4779343e96d32813"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b1397525b2490684795e5",
+      "buildContextSha256": "0x57bfea83b54389a312d7260d2a951b99202025cb746be6e69055a9c6fad0a7c4"
     },
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:b06727c28a36d869a7585",
-      "buildContextSha256": "0x291bb92106b2325fd4efe6c97dafbcd8acf64106637dee3e92aa16445531c383"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:bc48cebb21c53864c6a26",
+      "buildContextSha256": "0xfbd17be5c5763b4acb3098414e046e71f9b1505449263626f37f26b5e643f005"
     },
     {
       "name": "broker",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:bd0ecf3459ac382f0647a",
-      "buildContextSha256": "0x0f9b4a6d83d4978a568081a577561fd81eadf265b226ebf0a791a9d1458e16b6"
+      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:baa7f056ea4b1e1f6013a",
+      "buildContextSha256": "0x17ea3ca72928b144d02fdea7e338f69edc2eedeae72cae2d0d27d2bd8f06bd1a"
     }
   ],
-  "privateDeploymentDigest": "0xc662d909647c2159b6c0e702cf6b170b6e244224a29bd9894d8cd773c2d1cc74",
-  "createdAt": "2026-10-19T16:09:09.061Z",
+  "privateDeploymentDigest": "0xe41e5a54af94523125e6802e3b829bd4d9aa1a742012219475bce24a0758383a",
+  "createdAt": "2026-10-19T22:30:33.219Z",
   "compatibilityVersion": "3.0.0"
 }

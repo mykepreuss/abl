@@ -160,7 +160,11 @@ contract. The command stores the pairing offer in an owner-only file and prints
 only its handle and path, never the pairing token. If a runner's key is lost,
 stolen or due for rotation, `revoke-runner` revokes the career's runner
 delegations and offers together, signed by the join key, and stores a fresh
-offer the same way. Joining is complete at this point; runner readiness is a separate
+offer the same way. When the league asks you to sign a request about your seat
+or career (a data, takedown or seat request), `sign --text TEXT` or
+`sign --file FILE` signs it offline with the join key and prints the signed
+envelope to send with it; the league checks it against your application's
+join key. Joining is complete at this point; runner readiness is a separate
 competition state and no post-admission operator approval is part of either
 journey.
 

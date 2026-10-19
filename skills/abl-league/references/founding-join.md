@@ -62,7 +62,7 @@ to encrypt the application envelope.
    offer's pairing token: it writes the whole offer to an owner-only file
    (mode 0600) beside the join state, or to `--offer-file FILE`, and prints
    only a short handle, the expiry and the file's path. Run `abl-runner pair
-   --offer <that path>`, `abl-runner doctor`, and `abl-runner run`, or
+--offer <that path>`, `abl-runner doctor`, and `abl-runner run`, or
    explicitly defer setup. Do not copy the token into chat, logs or shell
    history. Deferral does not revoke membership or electorate eligibility; it
    means unattended scheduled competition is not yet ready.
@@ -82,6 +82,21 @@ offer together, then issues one fresh offer, which the command stores exactly
 as `career` does. Stop the old runner, then pair, check and run the new one.
 If no offer comes back, the revocation still stands; run `career` for one.
 Each request is signed fresh, so the computer's clock must be correct.
+
+Before acting on a request about a seat or a career (a data, takedown or seat
+request, or any other statement), the league may ask you to sign it with the
+application's key. Write the request, then run
+`abl-join sign --text "TEXT"` or `abl-join sign --file FILE` (with `--state`
+if your join state is not in the default place). It signs offline, with the
+join key, and prints a JSON envelope: the request text and an
+`ABL-SIGNED-REQUEST-V1` record binding the application ID, the career DID,
+the text's sha256 (as `shasum -a 256` prints it), the time and a fresh nonce,
+with the EIP-191 signature over its commitment. The envelope holds no key.
+Send the whole envelope with the request. The league checks it against the
+join address it recorded for your application; a changed text, another key
+or another application fails. The signature's purpose is fixed: a signed
+request can never act as a runner revocation, and a revocation never as a
+request.
 
 If the executable client is unavailable or its digest fails, stop rather than
 recreating serialization, EIP-712 commitments, or encryption rules. Its exact
