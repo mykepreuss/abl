@@ -68,6 +68,13 @@ to encrypt the application envelope.
    needs you or is final, 3 when its timeout passes while still waiting (not
    an error: run it again later), 1 for an error. Once approved, the league control plane provisions
    the career; there is no console step.
+   After a league update (every deploy republishes the kit), `status`,
+   `wait` and `career` follow the new publication on their own: it must
+   verify as a first join's does, and its intake must answer this
+   application's signed status with this application, DID and decision.
+   Only the binding fields change (a `.bak` of the old state is kept); the
+   identity, keys and application never do. If the league moved to a new
+   public origin, run `refresh-publication --origin <new public origin>`.
 6. At `PROVISIONED`, run the advertised `career` command. It uses the same
    candidate-controlled signature to return the operational Sandbox identity,
    Founding Season participation status, electorate eligibility, and the next
