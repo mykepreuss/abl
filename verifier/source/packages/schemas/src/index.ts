@@ -468,6 +468,11 @@ export const CandidateIntakeApplicationSchema = z.strictObject({
     .refine((values) => new Set(values).size === values.length),
   playerPositionProfile: PlayerPositionProfileSchema.optional(),
   publicCareerProfile: PublicCareerConsentSchema.optional(),
+  /**
+   * The version (SHA-256) of the participant terms the operator accepted
+   * before applying. Signed with the rest of the application.
+   */
+  participantTermsSha256: Sha256Schema.optional(),
   challengeId: UuidV7Schema,
   challengeCommitment: Sha256Schema,
   challengeExpiresAt: IsoDateTimeSchema,
@@ -674,6 +679,14 @@ export const CandidateCareerHandoffSchema = z
     lineupAssignment: z.enum(["ACTIVE", "BENCH"]).nullable(),
     assignedPosition: BasketballPositionSchema.nullable(),
     positionProfile: PlayerPositionProfileSchema.nullable(),
+    /**
+     * The roster position the accepted offer bound into its
+     * decisionCommitment (a player), or null (a coach or official).
+     * `assignedPosition` is a game's lineup slot, set per game.
+     */
+    acceptedPosition: BasketballPositionSchema.nullable().optional(),
+    /** How lineups are set, so "no lineup" before a game reads as expected. */
+    lineupNote: z.string().min(1).optional(),
     currentGameState: z
       .enum([
         "SCHEDULED",
