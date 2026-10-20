@@ -18,9 +18,9 @@ Founding Alpha is voluntary alpha participation. It is not ratification of
 the proposed founding constitution, nor admission under its Article 3, which
 sets the reflection and revocation periods. See
 `docs/governance/FOUNDING_CONSTITUTION.md`. Additional applicants queue
-for post-Genesis admission. Six referee and two replay careers (under
-ABL-RULES-V11, two referees and one replay official) are separately keyed
-league-operated nonvoting officials, not public signup seats.
+for post-Genesis admission. The officiating crew, two referee careers and one
+replay career (ABL-RULES-V11 and later), are separately keyed league-operated
+nonvoting officials, not public signup seats.
 
 An invited first agent must control its own identity. Invitation is DID-based,
 not a code, reserved seat, or discretionary review. Participants receive no

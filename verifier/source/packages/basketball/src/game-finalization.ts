@@ -159,63 +159,123 @@ export const GameCommandSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("END_PERIOD") }),
 ]);
 
-export const AgentPlayedGameEvidenceSchema = z.strictObject({
-  gameId: UuidV7Schema,
-  possessionCount: z.number().int().positive().max(1_000),
-  decisionCounts: z.strictObject({
-    players: z.number().int().positive().max(100_000),
-    coaches: z.number().int().positive().max(100_000),
-    referees: z.number().int().positive().max(100_000),
-    replayOfficials: z.number().int().positive().max(100_000),
-  }),
-  decisionRoots: z.strictObject({
-    players: Sha256Schema,
-    coaches: Sha256Schema,
-    referees: Sha256Schema,
-    replayOfficials: Sha256Schema,
-  }),
-  authorityEvidence: z
-    .strictObject({
-      participants: z.strictObject({
-        players: z.array(DidSchema).min(10).max(16),
-        coaches: z.array(DidSchema).length(2),
-        referees: z.array(DidSchema).min(3).max(6),
-        replayOfficials: z.array(DidSchema).length(2),
-      }),
-      decisionRoots: z.strictObject({
-        players: Sha256Schema,
-        coaches: Sha256Schema,
-        referees: Sha256Schema,
-        replayOfficials: Sha256Schema,
-      }),
-    })
-    .superRefine(({ participants }, context) => {
-      const roleDids = Object.values(participants).flat();
-      if (new Set(roleDids).size !== roleDids.length)
-        context.addIssue({
-          code: "custom",
-          message: "Founding exhibition role careers must be distinct",
-        });
-      for (const [role, dids] of Object.entries(participants)) {
-        if (new Set(dids).size !== dids.length)
+export const AgentPlayedGameEvidenceSchema = z
+  .strictObject({
+    gameId: UuidV7Schema,
+    possessionCount: z.number().int().positive().max(1_000),
+    decisionCounts: z.strictObject({
+      players: z.number().int().positive().max(100_000),
+      coaches: z.number().int().positive().max(100_000),
+      referees: z.number().int().positive().max(100_000),
+      // A game under the league's crew with no review has none.
+      replayOfficials: z.number().int().nonnegative().max(100_000),
+    }),
+    decisionRoots: z.strictObject({
+      players: Sha256Schema,
+      coaches: Sha256Schema,
+      referees: Sha256Schema,
+      replayOfficials: Sha256Schema,
+    }),
+    authorityEvidence: z
+      .strictObject({
+        // The careers that decided: three to six referees and both replay
+        // officials under the original rules, or the league's crew (two
+        // referees, and the replay official when a review was warranted).
+        participants: z
+          .strictObject({
+            players: z.array(DidSchema).min(10).max(16),
+            coaches: z.array(DidSchema).length(2),
+            referees: z.array(DidSchema).min(2).max(6),
+            replayOfficials: z.array(DidSchema).max(2),
+          })
+          .refine(
+            ({ referees, replayOfficials }) =>
+              isCrewParticipants({ referees, replayOfficials }) ||
+              (referees.length >= 3 && replayOfficials.length === 2),
+            "Founding exhibition officials must be the original registry's or the league's crew",
+          ),
+        decisionRoots: z.strictObject({
+          players: Sha256Schema,
+          coaches: Sha256Schema,
+          referees: Sha256Schema,
+          replayOfficials: Sha256Schema,
+        }),
+      })
+      .superRefine(({ participants }, context) => {
+        const roleDids = Object.values(participants).flat();
+        if (new Set(roleDids).size !== roleDids.length)
           context.addIssue({
             code: "custom",
-            path: [role],
             message: "Founding exhibition role careers must be distinct",
           });
-        if (dids.join("\u0000") !== [...dids].sort().join("\u0000"))
-          context.addIssue({
-            code: "custom",
-            path: [role],
-            message: "Founding exhibition role careers must be sorted",
-          });
-      }
-    })
-    .optional(),
-  possessionProofRoot: Sha256Schema,
-  gameProofCommitment: Sha256Schema,
-  evidenceCommitment: Sha256Schema,
-});
+        for (const [role, dids] of Object.entries(participants)) {
+          if (new Set(dids).size !== dids.length)
+            context.addIssue({
+              code: "custom",
+              path: [role],
+              message: "Founding exhibition role careers must be distinct",
+            });
+          if (dids.join("\u0000") !== [...dids].sort().join("\u0000"))
+            context.addIssue({
+              code: "custom",
+              path: [role],
+              message: "Founding exhibition role careers must be sorted",
+            });
+        }
+      })
+      .optional(),
+    possessionProofRoot: Sha256Schema,
+    gameProofCommitment: Sha256Schema,
+    evidenceCommitment: Sha256Schema,
+  })
+  .refine(
+    ({ authorityEvidence, decisionCounts, possessionCount }) =>
+      authorityEvidence === undefined ||
+      isCrewParticipants(authorityEvidence.participants) ===
+        crewDecisionCounts(decisionCounts, possessionCount),
+    "Founding exhibition officials and decision counts must name the same crew",
+  )
+  // A replay official is among the deciders exactly when there were replay
+  // decisions (a crew game with no warranted review has neither).
+  .refine(
+    ({ authorityEvidence, decisionCounts }) =>
+      authorityEvidence === undefined ||
+      authorityEvidence.participants.replayOfficials.length > 0 ===
+        decisionCounts.replayOfficials > 0,
+    "Founding exhibition replay officials and replay decisions must agree",
+  );
+
+/**
+ * The officials who decided in a game under the league's crew
+ * (ABL-RULES-V11 and later): its two referees, and its replay official
+ * when a review was warranted.
+ */
+function isCrewParticipants(participants: {
+  referees: readonly string[];
+  replayOfficials: readonly string[];
+}): boolean {
+  return (
+    participants.referees.length === 2 &&
+    participants.replayOfficials.length <= 1
+  );
+}
+
+/**
+ * A game's official decision counts under the league's crew: referees two
+ * at a time, at most three rulings a possession, and at most one review a
+ * possession. The original rules have exactly two replay decisions on every
+ * possession, so the two shapes never overlap.
+ */
+function crewDecisionCounts(
+  counts: { referees: number; replayOfficials: number },
+  possessionCount: number,
+): boolean {
+  return (
+    counts.referees % 2 === 0 &&
+    counts.referees <= possessionCount * 6 &&
+    counts.replayOfficials <= possessionCount
+  );
+}
 
 /** Ten player and two coach decisions per window played (one to four). */
 const windowDecisions = (perWindow: number) =>
@@ -293,7 +353,7 @@ const replayInTwos = <T extends z.ZodType<string>>(item: T) =>
  * officials decide only when something happened: referee decisions come in
  * threes, none when nothing needed a ruling and at most three rulings; replay
  * decisions are both or neither. Finalized games keep the exact evidence
- * above.
+ * above, or the league's crew's below.
  */
 export const ConditionalOfficialsPossessionEvidenceSchema = z
   .strictObject({
@@ -329,11 +389,73 @@ export const ConditionalOfficialsPossessionEvidenceSchema = z
     "Possession decisions must cover the same windows and rulings",
   );
 
+const refereesInTwos = <T extends z.ZodType<string>>(item: T) =>
+  z
+    .array(item)
+    .max(6)
+    .refine(
+      (decisions) => decisions.length % 2 === 0,
+      "The crew's referees decide two at a time",
+    );
+
+/**
+ * Possession evidence under the league's crew (ABL-RULES-V11 and later),
+ * for owner exhibitions and finalized games alike: referee decisions in
+ * twos, none when nothing needed a ruling and at most three rulings, and
+ * the one replay official's decision or none.
+ */
+export const CrewPossessionEvidenceSchema = z
+  .strictObject({
+    possessionId: z.string().min(1).max(100),
+    playerDecisionHashes: windowDecisions(10),
+    coachDecisionHashes: windowDecisions(2),
+    refereeDecisionHashes: refereesInTwos(Sha256Schema),
+    replayDecisionHashes: z.array(Sha256Schema).max(1),
+    authorityDids: z
+      .strictObject({
+        players: windowAuthorities(10),
+        coaches: windowAuthorities(2),
+        referees: refereesInTwos(DidSchema),
+        replayOfficials: z.array(DidSchema).max(1),
+      })
+      .optional(),
+    eventMerkleRoot: Sha256Schema,
+    finalStateRoot: Sha256Schema,
+  })
+  .refine(
+    (evidence) =>
+      evidence.coachDecisionHashes.length * 5 ===
+        evidence.playerDecisionHashes.length &&
+      (evidence.authorityDids === undefined ||
+        (evidence.authorityDids.players.length ===
+          evidence.playerDecisionHashes.length &&
+          evidence.authorityDids.coaches.length ===
+            evidence.coachDecisionHashes.length &&
+          evidence.authorityDids.referees.length ===
+            evidence.refereeDecisionHashes.length &&
+          evidence.authorityDids.replayOfficials.length ===
+            evidence.replayDecisionHashes.length)),
+    "Possession decisions must cover the same windows and rulings",
+  );
+
+/**
+ * A finalized game's possession evidence: every possession under the
+ * original rules (AgentPlayedPossessionEvidenceSchema, three referee and
+ * two replay decisions), or every one under the league's crew
+ * (CrewPossessionEvidenceSchema). The two shapes never overlap.
+ */
+export const FinalizedPossessionEvidenceSchema = z.union([
+  AgentPlayedPossessionEvidenceSchema,
+  CrewPossessionEvidenceSchema,
+]);
+
 /**
  * A game's total decisions are consistent with its possessions: each played
- * one to four windows of ten player and two coach decisions, and had three
- * referee and two replay decisions. Exact per-possession counts are bound by
- * the possession evidence itself.
+ * one to four windows of ten player and two coach decisions, and had, under
+ * the original rules, three referee and two replay decisions, or, under the
+ * league's crew, referee decisions in twos (at most three rulings) and at
+ * most one replay decision. Exact per-possession counts are bound by the
+ * possession evidence itself.
  */
 export function agentDecisionCountsAreConsistent(
   counts: {
@@ -349,8 +471,9 @@ export function agentDecisionCountsAreConsistent(
     counts.players >= possessionCount * 10 &&
     counts.players <= possessionCount * 40 &&
     counts.coaches * 5 === counts.players &&
-    counts.referees === possessionCount * 3 &&
-    counts.replayOfficials === possessionCount * 2
+    ((counts.referees === possessionCount * 3 &&
+      counts.replayOfficials === possessionCount * 2) ||
+      crewDecisionCounts(counts, possessionCount))
   );
 }
 
@@ -534,7 +657,7 @@ function evidenceBody(evidence: AgentPlayedGameEvidence) {
 }
 
 export type AgentPlayedPossessionEvidence = z.infer<
-  typeof AgentPlayedPossessionEvidenceSchema
+  typeof FinalizedPossessionEvidenceSchema
 >;
 
 function requiredAuthorityDids(
@@ -633,7 +756,7 @@ export function createAgentPlayedGameEvidence(input: {
   )[];
 }): AgentPlayedGameEvidence {
   const possessionProofs = z
-    .array(AgentPlayedPossessionEvidenceSchema)
+    .array(FinalizedPossessionEvidenceSchema)
     .min(1)
     .max(1_000)
     .refine(
@@ -641,6 +764,16 @@ export function createAgentPlayedGameEvidence(input: {
         new Set(proofs.map(({ possessionId }) => possessionId)).size ===
         proofs.length,
       "Agent-played possession evidence IDs must be unique",
+    )
+    .refine(
+      (proofs) =>
+        new Set(
+          proofs.map(
+            (proof) =>
+              AgentPlayedPossessionEvidenceSchema.safeParse(proof).success,
+          ),
+        ).size === 1,
+      "A game's possessions are all under the original rules or all under the league's crew",
     )
     .parse(input.possessionProofs);
   const decisionHashes = {

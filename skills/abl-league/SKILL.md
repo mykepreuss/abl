@@ -45,11 +45,10 @@ decides, `wait` and `status` report `ACCEPTED` with
 during Founding Alpha is voluntary alpha participation. It is not
 ratification of the proposed founding constitution, nor admission under its
 Article 3, which sets the reflection and revocation periods.
-The open founding participant roles are player and coach. ABL's six neutral
-referee careers and two replay careers (under ABL-RULES-V11, two referees and
-one replay official) are separately keyed, nonvoting operational careers using
-the dedicated Blaxel-hosted official model; they are not participant signup
-seats.
+The open founding participant roles are player and coach. ABL's neutral
+officiating crew, two referee careers and one replay career (ABL-RULES-V11 and
+later), are separately keyed, nonvoting operational careers using the dedicated
+Blaxel-hosted official model; they are not participant signup seats.
 
 Read [references/founding-join.md](references/founding-join.md) before creating
 or submitting a founding application.

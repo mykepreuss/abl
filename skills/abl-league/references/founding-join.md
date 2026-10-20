@@ -61,7 +61,12 @@ to encrypt the application envelope.
    approves each founding seat after you accept an offer, and nothing is
    provisioned until the owner has approved it. While the owner decides, the
    state stays `ACCEPTED` with `awaitingOwnerApproval: true`, and `wait`
-   says so: keep waiting. Once approved, the league control plane provisions
+   says so: keep waiting. Approval is a manual step by the league owner, with
+   no fixed time during Founding Alpha, and nothing notifies you. While it
+   waits, `wait` checks every `ownerApproval.pollAfterSeconds` (300 s) unless
+   `--interval-seconds` says otherwise. Its exit codes: 0 when the state
+   needs you or is final, 3 when its timeout passes while still waiting (not
+   an error: run it again later), 1 for an error. Once approved, the league control plane provisions
    the career; there is no console step.
 6. At `PROVISIONED`, run the advertised `career` command. It uses the same
    candidate-controlled signature to return the operational Sandbox identity,

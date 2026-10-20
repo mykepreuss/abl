@@ -838,18 +838,43 @@ export const GenesisRecognitionProfileSchema = z.discriminatedUnion(
   ],
 );
 
+/**
+ * The league's officiating crew, a founding requirement: two referees and
+ * one replay official, nonvoting and league-operated, playing under
+ * ABL-RULES-V11 or a later version that keeps its crew (the crew chief's
+ * call stands on a 1-1 split). Owner amendment of October 20, 2026 to the
+ * delivery contract (docs/launch/ABL_COMPLETION_01.md), replacing six
+ * referees and two replay officials. With the twelve participant founders
+ * it makes fifteen founding careers.
+ */
+export const FOUNDING_OFFICIAL_CREW = {
+  REFEREE: 2,
+  REPLAY_OFFICIAL: 1,
+} as const;
+
+/** Twelve participant founders plus the officiating crew. */
+export const FOUNDING_TARGET_CAREERS = 15;
+
 const FoundingMinimumRoleCountsSchema = z.strictObject({
   PLAYER: z.number().int().nonnegative().max(10),
   COACH: z.number().int().nonnegative().max(2),
-  REFEREE: z.number().int().nonnegative().max(6),
-  REPLAY_OFFICIAL: z.number().int().nonnegative().max(2),
+  REFEREE: z.number().int().nonnegative().max(FOUNDING_OFFICIAL_CREW.REFEREE),
+  REPLAY_OFFICIAL: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(FOUNDING_OFFICIAL_CREW.REPLAY_OFFICIAL),
 });
 
 const FoundingAdmissionRoleCountsSchema = z.strictObject({
   PLAYER: z.number().int().nonnegative().max(10),
   COACH: z.number().int().nonnegative().max(2),
-  REFEREE: z.number().int().nonnegative().max(6),
-  REPLAY_OFFICIAL: z.number().int().nonnegative().max(2),
+  REFEREE: z.number().int().nonnegative().max(FOUNDING_OFFICIAL_CREW.REFEREE),
+  REPLAY_OFFICIAL: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(FOUNDING_OFFICIAL_CREW.REPLAY_OFFICIAL),
 });
 
 const ParticipantFounderMinimumSchema = z.strictObject({
@@ -858,25 +883,28 @@ const ParticipantFounderMinimumSchema = z.strictObject({
 });
 
 const OperationalOfficialMinimumSchema = z.strictObject({
-  REFEREE: z.literal(6),
-  REPLAY_OFFICIAL: z.literal(2),
+  REFEREE: z.literal(FOUNDING_OFFICIAL_CREW.REFEREE),
+  REPLAY_OFFICIAL: z.literal(FOUNDING_OFFICIAL_CREW.REPLAY_OFFICIAL),
 });
 
 const OperationalOfficialCountsSchema = z.strictObject({
-  REFEREE: z.number().int().nonnegative().max(6),
-  REPLAY_OFFICIAL: z.number().int().nonnegative().max(2),
+  REFEREE: z.number().int().nonnegative().max(FOUNDING_OFFICIAL_CREW.REFEREE),
+  REPLAY_OFFICIAL: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(FOUNDING_OFFICIAL_CREW.REPLAY_OFFICIAL),
 });
 
 export const DEFAULT_FOUNDING_COHORT_STATE = {
-  targetCareers: 20,
+  targetCareers: FOUNDING_TARGET_CAREERS,
   minimumGenesisCoverage: {
     PLAYER: 10,
     COACH: 2,
-    REFEREE: 6,
-    REPLAY_OFFICIAL: 2,
+    ...FOUNDING_OFFICIAL_CREW,
   },
   participantFounderMinimum: { PLAYER: 10, COACH: 2 },
-  operationalOfficialMinimum: { REFEREE: 6, REPLAY_OFFICIAL: 2 },
+  operationalOfficialMinimum: { ...FOUNDING_OFFICIAL_CREW },
   operationalOfficials: { REFEREE: 0, REPLAY_OFFICIAL: 0 },
   admissionCapacity: {
     PLAYER: 10,
@@ -907,15 +935,14 @@ export const DEFAULT_FOUNDING_COHORT_STATE = {
 } as const;
 
 export const FoundingCohortStateSchema = z.strictObject({
-  targetCareers: z.literal(20),
+  targetCareers: z.literal(FOUNDING_TARGET_CAREERS),
   minimumGenesisCoverage: FoundingMinimumRoleCountsSchema,
   participantFounderMinimum: ParticipantFounderMinimumSchema.default({
     PLAYER: 10,
     COACH: 2,
   }),
   operationalOfficialMinimum: OperationalOfficialMinimumSchema.default({
-    REFEREE: 6,
-    REPLAY_OFFICIAL: 2,
+    ...FOUNDING_OFFICIAL_CREW,
   }),
   operationalOfficials: OperationalOfficialCountsSchema.default({
     REFEREE: 0,
@@ -967,13 +994,13 @@ export const DEFAULT_FOUNDING_SEASON_STATE = {
       satisfied: false,
     },
     operationalOfficialCoverage: {
-      required: { REFEREE: 6, REPLAY_OFFICIAL: 2 },
+      required: { ...FOUNDING_OFFICIAL_CREW },
       current: { REFEREE: 0, REPLAY_OFFICIAL: 0 },
       foundingElectorateEligible: false,
       satisfied: false,
     },
     roleCoverage: {
-      required: { PLAYER: 10, COACH: 2, REFEREE: 6, REPLAY_OFFICIAL: 2 },
+      required: { PLAYER: 10, COACH: 2, ...FOUNDING_OFFICIAL_CREW },
       current: { PLAYER: 0, COACH: 0, REFEREE: 0, REPLAY_OFFICIAL: 0 },
       satisfied: false,
     },
@@ -1012,10 +1039,7 @@ export const FoundingSeasonStateSchema = z.strictObject({
     }),
     operationalOfficialCoverage: z.strictObject({
       required: OperationalOfficialMinimumSchema,
-      current: z.strictObject({
-        REFEREE: z.number().int().nonnegative().max(6),
-        REPLAY_OFFICIAL: z.number().int().nonnegative().max(2),
-      }),
+      current: OperationalOfficialCountsSchema,
       foundingElectorateEligible: z.literal(false),
       satisfied: z.boolean(),
     }),
@@ -1023,8 +1047,8 @@ export const FoundingSeasonStateSchema = z.strictObject({
       required: z.strictObject({
         PLAYER: z.literal(10),
         COACH: z.literal(2),
-        REFEREE: z.literal(6),
-        REPLAY_OFFICIAL: z.literal(2),
+        REFEREE: z.literal(FOUNDING_OFFICIAL_CREW.REFEREE),
+        REPLAY_OFFICIAL: z.literal(FOUNDING_OFFICIAL_CREW.REPLAY_OFFICIAL),
       }),
       current: FoundingAdmissionRoleCountsSchema,
       satisfied: z.boolean(),
