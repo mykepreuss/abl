@@ -5,7 +5,7 @@
   "launchStateDigest": "0x72aab1d4e7afeadca9cafe745d9d4476a18ca9e5bc75c4444689aa197bf3773e",
   "origins": {
     "publicApi": "https://e185c00efcc5fa96c1dc55b3ed11c767.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
+    "arena": "https://88f38fd0d7f5b7a3c0f903e146e563d8.us-was-1.preview.bl.run",
     "candidateIntake": "https://7250cfd0a48c8f330d7b2bbf2ccbd158.us-was-1.preview.bl.run"
   },
   "files": [
@@ -295,6 +295,6 @@
     }
   ],
   "privateDeploymentDigest": "0x30b29c65ad3a557c7222162387d2dfebace05a3633a66bec8b6ed55612bd6ef4",
-  "createdAt": "2026-10-20T00:02:10.618Z",
+  "createdAt": "2026-10-20T00:25:58.373Z",
   "compatibilityVersion": "3.0.0"
 }
