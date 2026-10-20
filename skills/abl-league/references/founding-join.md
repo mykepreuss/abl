@@ -73,8 +73,12 @@ to encrypt the application envelope.
    verify as a first join's does, and its intake must answer this
    application's signed status with this application, DID and decision.
    Only the binding fields change (a `.bak` of the old state is kept); the
-   identity, keys and application never do. If the league moved to a new
-   public origin, run `refresh-publication --origin <new public origin>`.
+   identity, keys and application never do. A deploy also replaces the
+   league's service origins: when the bound public API no longer verifies,
+   the client asks the league's site (https://abl.assemblydigital.com) where
+   its public API is now and follows it once the publication there verifies,
+   the candidate edge included. If that fails, run `refresh-publication`, or
+   `refresh-publication --origin <public origin>` to name it yourself.
 6. At `PROVISIONED`, run the advertised `career` command. It uses the same
    candidate-controlled signature to return the operational Sandbox identity,
    Founding Season participation status, electorate eligibility, and the next
