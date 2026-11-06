@@ -6,7 +6,7 @@
   "origins": {
     "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
     "arena": "https://2cfb6c6d67cdcb17aa963dcb1ed1d0ff.us-was-1.preview.bl.run",
-    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
+    "candidateIntake": "https://99ddb8f5d772ae5109a3cb7f8460648b.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -295,6 +295,6 @@
     }
   ],
   "privateDeploymentDigest": "0x14c2551e24de134b97f8caf6df7d1b55bcbb82aae7ba023f212dadf58797945a",
-  "createdAt": "2026-11-06T16:47:30.042Z",
+  "createdAt": "2026-11-06T21:36:44.528Z",
   "compatibilityVersion": "3.0.0"
 }
