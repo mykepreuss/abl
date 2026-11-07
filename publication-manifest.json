@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "cd953c41458449436164e1f4febf6e1fb9bbf97e",
-  "launchStateDigest": "0x002ff07bde699327acf3e9c5509e4f0d0dd51e2b134b0864245b830f85c772c2",
+  "ablReleaseCommit": "756cfa5a4a3353d619b613a8690779a38656c478",
+  "launchStateDigest": "0xb15b5e0ed54710c4f385d995b7b705784799d1e62678d845f25049a7eeb3a7cd",
   "origins": {
-    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
-    "arena": "https://2cfb6c6d67cdcb17aa963dcb1ed1d0ff.us-was-1.preview.bl.run",
-    "candidateIntake": "https://99ddb8f5d772ae5109a3cb7f8460648b.us-was-1.preview.bl.run"
+    "publicApi": "https://f840b46647abf2f6f5068cea3c6faa75.us-was-1.preview.bl.run",
+    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
+    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -25,7 +25,7 @@
       "path": "THIRD_PARTY_NOTICES.md",
       "bytes": 23859,
       "mediaType": "text/markdown",
-      "sha256": "0xe9b03c01a6999170aa40da205066db69bcb86ae7a5794760e7fa797e7e0e6dfa"
+      "sha256": "0xa2f751a40f0abe7084db31501b61d17bf8c503bae41d3a6fdc69b1185a13e454"
     },
     {
       "path": "docs/PARTICIPATION.md",
@@ -71,51 +71,51 @@
     },
     {
       "path": "skills/abl-league/dist/abl-join.mjs",
-      "bytes": 1142770,
+      "bytes": 1270031,
       "mediaType": "text/javascript",
-      "sha256": "0x3b9365b3cb4a9ece867b43b135fa4f69e8118cbc5ab0b1e776a396ef43e5a352"
+      "sha256": "0x52c8a2cde64248513123a588e1d7267bf6fefc77836601649a99c8174ed60a5d"
     },
     {
       "path": "skills/abl-league/dist/abl-runner.mjs",
-      "bytes": 1217913,
+      "bytes": 1348137,
       "mediaType": "text/javascript",
-      "sha256": "0x7184fce1a8d09b6ee19d59ab4e7269b17bb9127b65aabd3a6e981259d74bc7df"
+      "sha256": "0xd2289a2fd5e9657376d4404f21b519cafd039d001d3e63ec110e1be21fd8599a"
     },
     {
       "path": "skills/abl-league/dist/manifest.json",
       "bytes": 191,
       "mediaType": "application/json",
-      "sha256": "0x6d8fc1d4d9b859786e797fbec70e1c7ae5eaefa596844297121b635770739f7a"
+      "sha256": "0x3d50c84b754020d6baa90763a3bd749b4f59ef20b8f1ed2b096b78a05db4d07a"
     },
     {
       "path": "skills/abl-league/dist/runner-manifest.json",
       "bytes": 263,
       "mediaType": "application/json",
-      "sha256": "0x63d3e5d29bc3aa6a23a563eba0f75bca0f0db68e3c899f2b52f74c5c26e47298"
+      "sha256": "0x4c098bbee67cfa9fb13b692784032f8abbae50dac67d5ca5bd1369d1a72b89d3"
     },
     {
       "path": "skills/abl-league/references/founding-join.md",
-      "bytes": 9442,
+      "bytes": 10384,
       "mediaType": "text/markdown",
-      "sha256": "0x10041903d21c5a8ff320cec07f5f5cf58f5059c6743cbfd845206f2dca99413e"
+      "sha256": "0x31e93228cfbcd936a9c44463c0c5fe6687e094f1683ce9f1937a1315767d1588"
     },
     {
       "path": "verifier/abl-verifier.mjs",
-      "bytes": 727915,
+      "bytes": 854760,
       "mediaType": "text/javascript",
-      "sha256": "0x7cdb2100e3455a1ad9d33c04ddb63eb3a93b792251fbbf2b95b328efd6f44e15"
+      "sha256": "0xf262feff8701e4893b378d869dad80c4aa3936fd6b68a81a4ea01525c3dcc854"
     },
     {
       "path": "verifier/schemas/event-packet.json",
-      "bytes": 6756,
+      "bytes": 6777,
       "mediaType": "application/json",
-      "sha256": "0xa50792890549e59ba065b589f484f0b06edf34fbc1d9555a5735400403248a7b"
+      "sha256": "0x94a64a2188e7e004797a53f5718dca89bab03d45c1e502dcb0d701e9ef9d26f7"
     },
     {
       "path": "verifier/schemas/publication-manifest.json",
-      "bytes": 3570,
+      "bytes": 3565,
       "mediaType": "application/json",
-      "sha256": "0x5b99077224c418b4ee4d5c982f4520dd17dab628f15c518e315322333b5ae854"
+      "sha256": "0xf56e0644af164362ee2873ca6d07d4289e508eee48127d3955bc82252b2de21a"
     },
     {
       "path": "verifier/schemas/recognition-packet.json",
@@ -266,35 +266,35 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:b23f09eacbf7a05db2e8d",
-      "buildContextSha256": "0xf8a3f787bc36fa721b1099ee5225b02c8da9791a468a6a2e7af7bacfe6d94508"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:bac03e41783ddc059d572",
+      "buildContextSha256": "0x81188563a5e90fbc1ec23340615b981075c70019533c5b23f53c617a51b5a687"
     },
     {
       "name": "arena",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-arena-image:b85657059cb02622e190d",
-      "buildContextSha256": "0xf671c3c62ac5be0f924f4155322b5a4204b86ef696d68fc96819fba7f5a8bc9e"
+      "imageReference": "sandbox/abl-stage-c-arena-image:b3a96e8464c0f6318e4d3",
+      "buildContextSha256": "0xccf0bf018e5fe94e873bc4ec90b942dd2963cb312ac474a5c5035d36452eab2d"
     },
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b49d6c54660273f5f320c",
-      "buildContextSha256": "0x421781fef2f4304f1e9883c29407c5e091635b56f6a4e7ca30449ff868362503"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b46aa49f8a95dc7248be3",
+      "buildContextSha256": "0xdb0d8203b1c6fb3fb2fc726b65543b1ac18939fc274f7a1622b6a72bbcd313e5"
     },
     {
       "name": "career",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-career-body-image:bc54144d799a3c5a237ae",
-      "buildContextSha256": "0x1dd9dac0e47f320307a09431da1c7f8ad363cfd8cc0870dd4de97ad58355bd2c"
+      "imageReference": "sandbox/abl-stage-c-career-body-image:b404f2dba1a0214489eae",
+      "buildContextSha256": "0x01fa4ba496ef43257ceff87eb1af87acbefd81c75aa6d6353a532c3ffd57a070"
     },
     {
       "name": "broker",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:bd682d2592bbc308f2483",
-      "buildContextSha256": "0x8b36515fd1fbb793674d5e98386e51dbfdbe6a8fcfa3d5b575ca191d2d3bfb48"
+      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:b8a8f91ed1b756c84aea8",
+      "buildContextSha256": "0x04e52b48a82bf65cab98f77163896f8f36dad216efc9b241b8ea26d8f9407fcb"
     }
   ],
-  "privateDeploymentDigest": "0x14c2551e24de134b97f8caf6df7d1b55bcbb82aae7ba023f212dadf58797945a",
-  "createdAt": "2026-11-06T21:36:44.528Z",
+  "privateDeploymentDigest": "0x18703f7160594463d0e6bf44f23751dd8e975399d99fac90884ad8d9f92e0524",
+  "createdAt": "2026-11-07T14:31:21.715Z",
   "compatibilityVersion": "3.0.0"
 }

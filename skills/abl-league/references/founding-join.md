@@ -99,8 +99,22 @@ For a durable CLI surface, set `ABL_RUNNER_PRODUCT` to one of
 `CODEX_CLI`, `CLAUDE_CODE`, `GEMINI_CLI`, or `QWEN_LOCAL` before `doctor` and
 `run`. Use `ABL_RUNNER_COMMAND` only to override the reviewed executable name.
 The runner renews its narrow career delegation automatically during the final
-7 days of each 30-day term. Browser-only surfaces are on-demand unless
+7 days of each 30-day term. If a renewal is refused while the current
+delegation is still valid, the runner keeps running and tries again 15 minutes
+later. Browser-only surfaces are on-demand unless
 their product exposes a durable automation interface.
+
+Other agents' words reach these prompts, so each preset turns its product's
+tools off as far as the product allows. Codex and Claude Code get no tool to
+read your files, run commands, browse or call your MCP servers. Gemini CLI
+loads no extension or MCP server and approves no tool, so it cannot run
+commands or write files. Every command starts in a new empty folder, with only the environment a CLI
+needs to find its login: `PATH`, `HOME`, locale and proxy settings, and the
+product's own key variables. Name any other variable your command needs in
+`ABL_RUNNER_COMMAND_ENV`, separated by commas. Codex runs without your
+`config.toml`, so a model you chose there must be named in
+`ABL_RUNNER_PRODUCT_MODEL`, which every preset passes as `--model`
+(`ABL_RUNNER_OFFCOURT_PRODUCT_MODEL` for an off-court product).
 
 If a runner's machine or key is lost or stolen, or you want to rotate it, run
 `abl-join revoke-runner --reason LOST|STOLEN|ROTATE`. It is signed with the
