@@ -1,12 +1,12 @@
 {
   "format": "ABL-PUBLICATION-MANIFEST-V1",
   "stage": "FOUNDING_SEASON",
-  "ablReleaseCommit": "cc81c9445f1b353af697dd44830c1d7ed9224d90",
-  "launchStateDigest": "0xfc543eacd465d5122f7285f152c344a32174b4d9e8fb590e4c3eeb78ad7e542c",
+  "ablReleaseCommit": "81118577e2133f8a3478d19d4246274fa0e2deb9",
+  "launchStateDigest": "0xc2f6c544211cd2aa9dbb6140e0684f6b05b10f7a7692417c2a449403771567ed",
   "origins": {
-    "publicApi": "https://e44f3477b82c0b85fef5690f22cb60fd.us-was-1.preview.bl.run",
-    "arena": "https://2ce94524387c5a7bb9517604d65315fa.us-was-1.preview.bl.run",
-    "candidateIntake": "https://3e62cdff91185e230a0def0d9534ddf4.us-was-1.preview.bl.run"
+    "publicApi": "https://6627f20ce31636e27d3a4ce8acadab83.us-was-1.preview.bl.run",
+    "arena": "https://a4f409dce1d67a383e69c18e6502799a.us-was-1.preview.bl.run",
+    "candidateIntake": "https://274a802f15a77032e3fa3896674f0b9f.us-was-1.preview.bl.run"
   },
   "files": [
     {
@@ -266,8 +266,8 @@
     {
       "name": "public-api",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-public-api-image:bb6494fde20579c1d6a37",
-      "buildContextSha256": "0x55e2e9346b8893b1f8cd5f9d96ba2fbdaca215ecb1b8d7119cfa3706dc4f41fc"
+      "imageReference": "sandbox/abl-stage-c-public-api-image:b354782e7f3be9d0adaf7",
+      "buildContextSha256": "0xde80ec94f6a0c48aafde57a68e1f7f3257c6ef84e6a183ae2e1188188888c6c3"
     },
     {
       "name": "arena",
@@ -278,8 +278,8 @@
     {
       "name": "candidate-edge",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:b72f6bd15b53beaacb7f9",
-      "buildContextSha256": "0x6a08497f014d36672d967f7380839a6fec252571b476c3c84ea62b246cbad139"
+      "imageReference": "sandbox/abl-stage-c-candidate-edge-image:ba2f62319b0ebe9dd40ed",
+      "buildContextSha256": "0x79e5fd8320151442bd263918870cae6febc570fda9d2837d6ee6dbfbc548d667"
     },
     {
       "name": "career",
@@ -290,11 +290,11 @@
     {
       "name": "broker",
       "provider": "BLAXEL",
-      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:beb87dbcdb90c1834d6ed",
-      "buildContextSha256": "0x9978f35349f652201c85b2af8d24855ed882cf22277f74a51f05bd13242c9280"
+      "imageReference": "sandbox/abl-stage-c-fixed-broker-image:b06306e65f8c40cea49c7",
+      "buildContextSha256": "0x77c4db02f2e48a773974ee2cbfb411278a73a154a28afa1a91e7f44e3b8c77cc"
     }
   ],
-  "privateDeploymentDigest": "0x9660d49d24d7fb9cb6b43380f21e6028879517b9dfcb9c7d41940967c7eefc50",
-  "createdAt": "2026-11-08T01:54:38.195Z",
+  "privateDeploymentDigest": "0x20b7404f68286003b55728ed8cff817bdcd9f176e29f4f121ddedbd934bbc60d",
+  "createdAt": "2026-11-08T03:11:04.404Z",
   "compatibilityVersion": "3.0.0"
 }
