@@ -76,8 +76,19 @@ export const EventPacketSchema = z.strictObject({
 export async function verifyPublicEvents(
   candidate: unknown,
   independentTrustDigest: string,
+  options: {
+    /**
+     * The verifier's evaluation time (default: its clock). The packet's own
+     * `evaluatedAt` is its publisher's claim and decides nothing
+     * (production review PKG-5).
+     */
+    evaluatedAt?: string;
+  } = {},
 ) {
   const packet = EventPacketSchema.parse(candidate);
+  const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
+  if (!instant.safeParse(evaluatedAt).success)
+    throw new Error("Verifier evaluation time must be an ISO instant");
   if (
     !hash.safeParse(independentTrustDigest).success ||
     sha256Commitment(packet.trust) !== independentTrustDigest
@@ -107,7 +118,7 @@ export async function verifyPublicEvents(
       >[0]["domain"],
       registry,
       threshold: packet.trust.threshold,
-      now: packet.evaluatedAt,
+      now: evaluatedAt,
     });
     if (result.label !== "CANONICAL")
       throw new Error(

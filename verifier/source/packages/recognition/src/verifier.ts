@@ -36,10 +36,34 @@ interface AggregateHead {
   hash: Hex | null;
 }
 
+/**
+ * Applies signed events in the order it is given them, as a public
+ * verifier replays published history.
+ *
+ * A key's revocation and expiry (production review PKG-5) are cut-offs in
+ * that history, not only in the signed document's own timestamp, which
+ * whoever holds the key chooses. A key revoked or expired at R signs for
+ * an event only if the event's timestamp is before R and this verifier
+ * has not yet accepted any event at or after R: once the history it has
+ * verified reaches R, nothing more that key signs is accepted, however
+ * early it claims to be. An honest event signed before R was published
+ * before history moved past R, so a key revoked later never invalidates
+ * it; a backdated event appended later is refused. The caller's `now`
+ * (the verifier's own evaluation time, never a packet's) bounds how far
+ * ahead an event may claim to be.
+ *
+ * What this cannot see: a backdated event placed, in a packet its forger
+ * assembles, before history reaches R. Chain continuity confines that to
+ * the tail of an aggregate whose last event precedes R, or a new
+ * aggregate; refusing it needs time anchored outside the signer's control
+ * (the recognition path's Base checkpoints).
+ */
 export class PublicVerifier {
   readonly #heads = new Map<string, AggregateHead>();
   readonly #nonces = new Set<string>();
   readonly #idempotency = new Map<string, Hex>();
+  /** The latest timestamp among the events this verifier has accepted. */
+  #verifiedThrough = Number.NEGATIVE_INFINITY;
 
   public async verifyAndApply(input: {
     event: CanonicalEvent;
@@ -72,7 +96,7 @@ export class PublicVerifier {
           ),
         );
       }
-      input.registry.authorize({
+      const authorized = input.registry.authorize({
         signers,
         policy: input.threshold,
         at: input.event.timestamp,
@@ -93,6 +117,20 @@ export class PublicVerifier {
           eventHash: input.event.eventHash,
         };
       }
+      for (const record of authorized) {
+        const cutoff = Math.min(
+          record.revokedAt === null
+            ? Number.POSITIVE_INFINITY
+            : Date.parse(record.revokedAt),
+          record.validUntil === null
+            ? Number.POSITIVE_INFINITY
+            : Date.parse(record.validUntil),
+        );
+        if (this.#verifiedThrough >= cutoff)
+          throw new Error(
+            `Institutional signer was revoked or expired before this event was verified: ${record.address}`,
+          );
+      }
       const aggregateKey = `${input.event.aggregateType}:${input.event.aggregateId}`;
       const head = this.#heads.get(aggregateKey) ?? { version: 0n, hash: null };
       if (input.event.aggregateVersion !== head.version + 1n)
@@ -107,6 +145,7 @@ export class PublicVerifier {
       });
       this.#nonces.add(nonceKey);
       this.#idempotency.set(input.event.idempotencyKey, input.event.eventHash);
+      this.#verifiedThrough = Math.max(this.#verifiedThrough, eventTime);
       return { label: "CANONICAL", reasons, eventHash: input.event.eventHash };
     } catch (error) {
       reasons.push(
